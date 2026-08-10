@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cozy Reader</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cozy Reader">
+<meta name="theme-color" content="#1a1612">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <button class="hamburger" id="menuBtn" aria-label="Menu">☰</button>
+  <a class="brand" href="./">✦ COZY READER</a>
+  <span>Private shelf · works offline</span>
+</nav>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span class="drawer-title">✦ Cozy Reader</span>
+    <button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button>
+  </div>
+  <div class="drawer-section">
+    <div class="drawer-label">GAMES</div>
+    <a class="drawer-link" href="clicker.html">
+      <span class="drawer-glyph">☯</span>
+      <span>Spirit Clicker</span>
+      <small>Cultivation idle game</small>
+    </a>
+    <a class="drawer-link" href="rpg.html">
+      <span class="drawer-glyph">⚔</span>
+      <span>Pocket RPG</span>
+      <small>Turn-based adventure</small>
+    </a>
+  </div>
+  <div class="drawer-section">
+    <div class="drawer-label">SHELF</div>
+    <a class="drawer-link" href="#" id="drawerShelf">
+      <span class="drawer-glyph">❦</span>
+      <span>Your Library</span>
+      <small>Books, audio, video</small>
+    </a>
+  </div>
+</nav>
+
+<main class="library" id="library">
+  <section class="welcome">
+    <p class="eyebrow">A QUIET PLACE FOR STORIES</p>
+    <h1>Read, listen, and settle in.</h1>
+    <p>Import EPUB, TXT, Markdown, audio, or video. Everything stays on this device.</p>
+    <label class="add" for="files">
+      <b>+</b> Add to shelf
+    </label>
+    <input id="files" type="file" multiple accept=".epub,.txt,.md,.text,.markdown,audio/*,video/*" hidden>
+  </section>
+
+  <header class="shelf-head">
+    <h2>Your shelf</h2>
+    <input id="search" type="search" placeholder="Search your library..." autocomplete="off">
+  </header>
+  <p class="status" id="status"></p>
+  <div class="books" id="books"></div>
+</main>
+
+<template id="book">
+  <article class="book">
+    <div class="spine"></div>
+    <div>
+      <p class="kind"></p>
+      <h3></h3>
+      <p class="meta"></p>
+    </div>
+    <button class="delete" aria-label="Remove">×</button>
+  </article>
+</template>
+
+<section class="reader" id="reader" hidden>
+  <header class="readerbar">
+    <div>
+      <button class="round" id="back" aria-label="Back to shelf">←</button>
+    </div>
+    <strong id="title"></strong>
+    <div>
+      <button class="round" id="smaller" aria-label="Smaller text">A−</button>
+      <button class="round" id="larger" aria-label="Larger text">A+</button>
+      <button class="round" id="appearance" aria-label="Change theme">◐</button>
+    </div>
+  </header>
+  <div class="content" id="content">
+    <article id="textContent" hidden></article>
+    <div id="epubStage" hidden></div>
+  </div>
+  <footer class="readerfoot">
+    <button id="previous">← Previous</button>
+    <span id="pageStatus"></span>
+    <button id="chapters">Chapters</button>
+    <button id="next">Next →</button>
+  </footer>
+  <aside class="toc" id="toc" hidden>
+    <div class="toc-head">
+      <strong>Chapters</strong>
+      <button class="round" id="closeToc" aria-label="Close chapters">×</button>
+    </div>
+    <div id="tocItems"></div>
+  </aside>
+</section>
+
+<div class="player" id="player" hidden>
+  <button class="round close-player" id="closePlayer" aria-label="Close player">×</button>
+  <div class="now-playing">
+    <span>♫</span>
+    <div>
+      <p class="kind">NOW PLAYING</p>
+      <strong id="mediaTitle"></strong>
+    </div>
+  </div>
+  <video id="media" controls></video>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+<script src="app.js"></script>
+<script>
+const menuBtn=document.getElementById('menuBtn');
+const drawer=document.getElementById('drawer');
+const drawerOverlay=document.getElementById('drawerOverlay');
+const drawerClose=document.getElementById('drawerClose');
+const drawerShelf=document.getElementById('drawerShelf');
+function openDrawer(){drawer.classList.add('open');drawerOverlay.classList.add('open');}
+function closeDrawer(){drawer.classList.remove('open');drawerOverlay.classList.remove('open');}
+menuBtn.addEventListener('click',openDrawer);
+drawerClose.addEventListener('click',closeDrawer);
+drawerOverlay.addEventListener('click',closeDrawer);
+drawerShelf.addEventListener('click',function(e){e.preventDefault();closeDrawer();document.querySelector('.shelf-head').scrollIntoView({behavior:'smooth'});});
+</script>
+</body>
+</html>

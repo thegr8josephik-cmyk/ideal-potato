@@ -1,0 +1,10 @@
+{
+  "name": "The Gate",
+  "short_name": "Gate",
+  "description": "A completely offline site with games and a media viewer.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1a1612",
+  "theme_color": "#1a1612"
+}

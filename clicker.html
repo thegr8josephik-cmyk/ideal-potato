@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Spirit Clicker | Nexus Gate</title>
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
+<style>
+:root{--bg:#000;--panel:#0e0e14;--panel-h:#16161f;--border:#2a2a38;--text:#e8e8ef;--dim:#9a9ab0;--blue:#6366f1;--purple:#a855f7;--grey:#c7c7d6;--grad:linear-gradient(135deg,#6366f1,#a855f7);--glow:rgba(99,102,241,.28);--glow2:rgba(168,85,247,.28);--gold:#fbbf24;--orthodox:#6366f1;--demonic:#ef4444;--chaotic:#f59e0b;--body:#22c55e;--spirit:#a855f7;--void:#64748b;--sovereign:#fbbf24;--mana:#06b6d4;--se:#f87171;--mono:'Cascadia Mono','Cascadia Code',ui-monospace,Menlo,Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:relative}
+canvas#particles{position:fixed;inset:0;pointer-events:none;z-index:10}
+.hamburger{position:fixed;top:max(env(safe-area-inset-top),12px);left:16px;z-index:200;width:42px;height:42px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--grey);font-size:1.2rem;font-family:var(--mono);transition:transform .1s,box-shadow .1s,border-color .15s}
+.hamburger:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.hamburger:hover{border-color:var(--blue);color:var(--text)}
+.close-sigil{position:fixed;top:max(env(safe-area-inset-top),12px);right:16px;z-index:200;width:42px;height:42px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--grey);font-size:1.1rem;font-family:var(--mono);transition:transform .1s,box-shadow .1s,border-color .15s}
+.close-sigil:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.close-sigil:hover{border-color:#ef4444;color:#ef4444}
+.help-btn{position:fixed;bottom:max(env(safe-area-inset-bottom),16px);right:16px;z-index:200;width:46px;height:46px;background:var(--grad);border:2px solid var(--grey);box-shadow:4px 4px 0 var(--glow2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:1.3rem;font-weight:700;font-family:var(--mono)}
+.help-btn:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.dov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.dov.active{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:-280px;width:272px;height:100%;background:var(--panel);border-right:2px solid var(--border);z-index:301;transition:left .25s;padding:max(env(safe-area-inset-top),20px) 0 20px;overflow-y:auto}
+.drawer.active{left:0}
+.dt{padding:0 20px 16px;font-size:1.05rem;font-weight:800;letter-spacing:2px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;border-bottom:2px solid var(--border);margin-bottom:8px;font-family:var(--mono)}
+.di{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;transition:background .15s,color .15s;font-size:.92rem;font-weight:700;color:var(--dim);border-left:3px solid transparent;font-family:inherit;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left}
+.di:hover{background:var(--panel-h);color:var(--text)}
+.di.active{background:var(--panel-h);color:var(--blue);border-left-color:var(--blue)}
+.di-i{font-size:.85rem;width:30px;text-align:center;font-family:var(--mono);font-weight:700}
+.sb{padding:max(env(safe-area-inset-top),12px) 16px 10px;padding-left:64px;padding-right:64px;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);border-bottom:2px solid var(--border);z-index:50}
+.sr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.rn{font-size:1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:var(--mono);letter-spacing:1px}
+.cr{display:flex;gap:6px;font-size:.6rem;flex-wrap:wrap}
+.cb{padding:2px 7px;border:2px solid;font-family:var(--mono);font-weight:700}
+.ci{color:var(--gold);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
+.cs{color:var(--purple);border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.08)}
+.cd{color:var(--se);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+.cm{color:var(--mana);border-color:rgba(6,182,212,.4);background:rgba(6,182,212,.08)}
+.qm{font-size:1.6rem;font-weight:800;margin:2px 0;font-family:var(--mono)}
+.qs{font-size:.7rem;color:var(--dim);display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono)}
+.un{font-size:.65rem;color:var(--dim);margin-top:2px;font-family:var(--mono)}
+.mc{flex:1;overflow-y:auto;padding:16px;scrollbar-width:none}
+.mc::-webkit-scrollbar{display:none}
+.cv{display:flex;flex-direction:column;align-items:center;gap:16px;padding-top:10px}
+.core-container{position:relative;width:260px;height:260px;display:flex;align-items:center;justify-content:center;z-index:5}
+.sc{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--purple),#312e81);border:3px solid rgba(168,85,247,.5);box-shadow:0 0 50px var(--glow2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:800;color:#fff;user-select:none;transition:transform .05s;position:relative;z-index:5;font-family:var(--mono)}
+.sc:active{transform:scale(.92)}
+.orbit-wrapper{position:absolute;width:300px;height:300px;top:50%;left:50%;transform:translate(-50%,-50%);animation:spin 12s linear infinite;pointer-events:none;z-index:4}
+@keyframes spin{100%{transform:translate(-50%,-50%) rotate(360deg)}}
+.sat-core{position:absolute;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--blue),#312e81);border:2px solid rgba(255,255,255,.3);box-shadow:0 0 15px var(--glow);top:50%;left:50%;margin:-21px 0 0 -21px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;font-family:var(--mono)}
+.fq{position:absolute;color:var(--gold);font-weight:700;font-size:1.1rem;pointer-events:none;animation:fu .8s ease-out forwards;z-index:15;font-family:var(--mono)}
+@keyframes fu{0%{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-50px) scale(.7)}}
+.cpb{width:100%;max-width:300px;height:8px;background:var(--panel);border:2px solid var(--border);overflow:hidden;margin-top:4px}
+.cpf{height:100%;background:var(--grad);transition:width .2s}
+.cpl{font-size:.7rem;color:var(--dim);text-align:center;margin-top:4px;font-family:var(--mono)}
+.combo-bar{width:100%;max-width:300px;height:6px;background:var(--panel);border:2px solid var(--border);overflow:hidden;margin-top:2px}
+.combo-fill{height:100%;background:linear-gradient(90deg,var(--gold),#f97316);transition:width .1s}
+.combo-label{font-size:.65rem;color:var(--gold);text-align:center;font-family:var(--mono)}
+.skr{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:8px 0}
+.sk{width:46px;height:46px;border:2px solid var(--border);background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;cursor:pointer;position:relative;transition:all .15s;color:var(--text);font-family:var(--mono)}
+.sk:hover{border-color:var(--blue)}
+.sk.lk{opacity:.3;pointer-events:none}
+.sk.oc{opacity:.5}
+.cdo{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:#fff}
+.lv{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}
+.st{font-size:.78rem;text-transform:uppercase;letter-spacing:2px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0 6px;border-bottom:2px solid var(--border);padding-bottom:6px;font-family:var(--mono)}
+.cd2{display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;cursor:pointer;transition:all .15s;position:relative}
+.cd2:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.cd2:hover{border-color:var(--blue);background:var(--panel-h)}
+.cd2.dis{opacity:.4;pointer-events:none}
+.cd2.lk{opacity:.5}
+.cdi{font-size:.85rem;font-weight:700;width:38px;height:38px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid var(--border);background:#000;font-family:var(--mono)}
+.cdn{flex:1;min-width:0}
+.cdt{font-weight:700;font-size:.9rem}
+.cdd{font-size:.7rem;color:var(--dim);margin-top:2px}
+.cdc{font-size:.7rem;font-weight:700;color:var(--gold);margin-top:3px;font-family:var(--mono)}
+.cdr{text-align:right;flex-shrink:0}
+.po{border-left:4px solid var(--orthodox)}.pd{border-left:4px solid var(--demonic)}
+.pc{border-left:4px solid var(--chaotic)}.pb{border-left:4px solid var(--body)}
+.ps{border-left:4px solid var(--spirit)}.pv{border-left:4px solid var(--void)}
+.psv{border-left:4px solid var(--sovereign)}.pw{border-left:4px solid var(--se)}
+.qc{border-left:4px solid var(--blue)}
+.qb{height:6px;background:var(--panel);border:2px solid var(--border);margin-top:6px;overflow:hidden}
+.qf{height:100%;background:var(--grad)}
+.qcl{padding:6px 12px;background:var(--grad);color:#fff;border:2px solid var(--purple);font-size:.7rem;font-weight:700;cursor:pointer;font-family:var(--mono);box-shadow:2px 2px 0 var(--glow2)}
+.qcl:disabled{opacity:.4}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.si{padding:12px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;text-align:center;cursor:pointer;transition:all .15s}
+.si:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.si:hover{border-color:var(--blue)}
+.si.dis{opacity:.4;pointer-events:none}
+.sii{font-size:.9rem;font-weight:700;margin-bottom:6px;font-family:var(--mono);color:var(--blue)}
+.sin{font-size:.8rem;font-weight:700}
+.sid{font-size:.65rem;color:var(--dim);margin:4px 0}
+.sic{font-size:.75rem;color:var(--purple);font-weight:700;font-family:var(--mono)}
+.wb{text-align:center;padding:16px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;margin-bottom:12px}
+.wn{font-size:1.5rem;font-weight:800;color:var(--se);font-family:var(--mono)}
+.hpb{height:10px;background:var(--panel);border:2px solid var(--border);margin-top:8px;overflow:hidden}
+.hpf{height:100%;background:linear-gradient(90deg,var(--se),#ef4444);transition:width .3s}
+.dc{border-left:4px solid var(--se)}
+.dg-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.dg-grid{display:grid;gap:3px;padding:8px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c}
+.dg-cell{width:46px;height:46px;background:rgba(255,255,255,.03);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;position:relative;color:var(--text);font-family:var(--mono)}
+.dg-cell:hover{background:var(--panel-h);border-color:var(--blue)}
+.dg-cell.owned{border-color:var(--blue);background:rgba(99,102,241,.12)}
+.dg-cell .trap-dot{position:absolute;bottom:2px;right:2px;width:8px;height:8px;background:var(--se)}
+.dg-palette{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.dg-pal-item{padding:8px 12px;background:var(--panel);border:2px solid var(--border);cursor:pointer;font-size:.7rem;text-align:center;transition:all .15s;font-family:var(--mono);font-weight:700}
+.dg-pal-item:hover{border-color:var(--blue)}
+.dg-pal-item.dis{opacity:.4;pointer-events:none}
+.dg-stats{display:flex;gap:12px;font-size:.7rem;color:var(--dim);flex-wrap:wrap;justify-content:center;font-family:var(--mono)}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--panel);border:2px solid var(--blue);box-shadow:4px 4px 0 var(--glow);backdrop-filter:blur(10px);padding:10px 20px;font-weight:700;color:var(--text);opacity:0;pointer-events:none;transition:all .3s;z-index:500;text-align:center;font-size:.85rem;max-width:90%;font-family:var(--mono)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
+.mo.active{display:flex}
+.mb{background:var(--panel);border:2px solid var(--blue);box-shadow:8px 8px 0 var(--glow);padding:24px;max-width:360px;width:100%;text-align:center;max-height:80vh;overflow-y:auto}
+.mt{font-size:1.15rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;font-family:var(--mono);letter-spacing:1px}
+.md{font-size:.8rem;color:var(--dim);margin-bottom:16px;line-height:1.5}
+.mi{width:100%;padding:12px;background:#000;border:2px solid var(--border);color:var(--text);font-family:var(--mono);font-size:1rem;text-align:center;margin-bottom:12px;outline:none;text-transform:uppercase}
+.mi:focus{border-color:var(--blue)}
+.mbs{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1;padding:12px;border:2px solid var(--border);font-family:inherit;font-weight:700;cursor:pointer;font-size:.85rem;min-width:80px;box-shadow:3px 3px 0 #14141c;transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.bp{background:var(--grad);color:#fff;border-color:var(--purple)}
+.bs{background:var(--panel-h);color:var(--text)}
+.bg{background:linear-gradient(135deg,var(--gold),#f97316);color:#000;border-color:var(--gold)}
+.br{background:var(--demonic);color:#fff;border-color:#b91c1c}
+.tut-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.tut-ov.active{display:flex}
+.tut-box{background:var(--panel);border:2px solid var(--blue);box-shadow:8px 8px 0 var(--glow);padding:24px;max-width:340px;width:100%;text-align:center}
+.tut-step{font-size:1.5rem;margin-bottom:12px;font-family:var(--mono);font-weight:700;color:var(--blue)}
+.tut-title{font-size:1.1rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;font-family:var(--mono)}
+.tut-desc{font-size:.8rem;color:var(--dim);line-height:1.5;margin-bottom:16px}
+.tut-progress{font-size:.65rem;color:var(--dim);margin-bottom:12px;font-family:var(--mono)}
+.ap-section{margin-bottom:16px;padding:12px;background:var(--panel);border:2px solid var(--border)}
+.ap-title{font-size:.8rem;font-weight:700;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-family:var(--mono)}
+.ap-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.ap-input{flex:1;padding:8px;background:#000;border:2px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.8rem;outline:none}
+.ap-btn{padding:8px 14px;border:2px solid var(--border);font-family:inherit;font-weight:700;cursor:pointer;font-size:.75rem;background:var(--grad);color:#fff;box-shadow:2px 2px 0 var(--glow2)}
+.ap-btn:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.ap-code{font-family:var(--mono);font-size:.9rem;letter-spacing:2px;color:var(--blue);padding:8px;background:rgba(99,102,241,.1);border:2px solid var(--border)}
+.corruption-bar{width:100%;max-width:300px;padding:8px 12px;background:rgba(100,116,139,.12);border:2px solid rgba(100,116,139,.4);font-size:.7rem;color:var(--grey);text-align:center;font-family:var(--mono)}
+@media(max-width:420px){.dg-cell{width:38px;height:38px}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="hamburger" onclick="toggleDrawer()">≡</div>
+<a href="./index.html" class="close-sigil">✕</a>
+<div class="help-btn" onclick="openTutorial()">?</div>
+<div class="dov" id="dov" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="dt">☯ NEXUS GATE</div>
+  <div class="di active" data-view="core"><span class="di-i">01</span>Core</div>
+  <div class="di" data-view="forge"><span class="di-i">02</span>Forge</div>
+  <div class="di" data-view="dao"><span class="di-i">03</span>Dao Matrix</div>
+  <div class="di" data-view="defense"><span class="di-i">04</span>Nexus Delve</div>
+  <div class="di" data-view="wararts"><span class="di-i">05</span>War Arts</div>
+  <div class="di" data-view="mystic"><span class="di-i">06</span>Mystic</div>
+  <div class="di" data-view="evolution"><span class="di-i">07</span>Evolution</div>
+  <div class="di" data-view="quests"><span class="di-i">08</span>Quests</div>
+  <div class="di" data-view="shop"><span class="di-i">09</span>Shop</div>
+  <div class="di" data-view="ascend"><span class="di-i">10</span>Ascend</div>
+  <div class="di" data-view="admin" id="nav-admin" style="display:none"><span class="di-i">!!</span>Admin</div>
+</div>
+<div class="sb">
+  <div class="sr"><div class="rn" id="rn">Mortal</div><div class="cr">
+    <span class="cb ci" id="bi">IN 0</span><span class="cb cs" id="bs">ST 0</span>
+    <span class="cb cd" id="bse">SE 0</span><span class="cb cm" id="bm">MN 0</span>
+  </div></div>
+  <div class="qm" id="qm">0</div>
+  <div class="qs"><span id="qd">0 Qi/s</span><span id="qt">1 Qi/tap</span></div>
+  <div class="un" id="un-display"></div>
+</div>
+<div class="mc" id="mc"></div>
+<div class="toast" id="toast"></div>
+<div class="mo" id="mo"><div class="mb"><div class="mt" id="mot"></div><div class="md" id="mod"></div><input class="mi" id="moi" style="display:none" placeholder=""><div class="mbs" id="mob"></div></div></div>
+<div class="tut-ov" id="tut-ov">
+  <div class="tut-box">
+    <div class="tut-step" id="tut-step">☯</div>
+    <div class="tut-title" id="tut-title">Welcome</div>
+    <div class="tut-desc" id="tut-desc">Description</div>
+    <div class="tut-progress" id="tut-prog">Step 1/6</div>
+    <div class="mbs">
+      <button class="btn bs" onclick="closeTutorial()">Skip</button>
+      <button class="btn bp" onclick="nextTutorial()">Next →</button>
+    </div>
+  </div>
+</div>
+<div class="mo active" id="username-modal">
+  <div class="mb">
+    <div class="mt">☯ NEXUS GATE</div>
+    <div class="md">Enter your cultivator name to begin your journey.</div>
+    <input class="mi" id="username-input" placeholder="Username (3-16 chars)" maxlength="16" style="text-transform:none">
+    <div class="mbs"><button class="btn bp" onclick="registerUsername()">Begin Cultivation</button></div>
+  </div>
+</div>
+<script>
+const ADMIN_CODE="NEXUSVOID-GATE17X";
+const _H=s=>{let h=5381;for(let i=0;i<s.length;)h=((h<<5)+h)^s.charCodeAt(i++);return(h>>>0).toString(36)};
+const _X=(d,e)=>{let o="",k=e||ADMIN_CODE;for(let i=0;i<d.length;i++)o+=String.fromCharCode(d.charCodeAt(i)^k.charCodeAt(i%k.length));return o};
+const _C=d=>{let o="",n=d.length,i=0;while(i<n){let c=d.charCodeAt(i++),r=1;if(i<n&&d[i]===c)r++;o+=r>3?String.fromCharCode(0x80|r)+c:String.fromCharCode(c)+(r>1?String.fromCharCode(0x80|r):"");i+=r-1}return o};
+const _D=d=>{let o="",i=0;while(i<d.length){let c=d.charCodeAt(i++);if(c&0x80){let r=c&0x7F;o+=String.fromCharCode(d.charCodeAt(i)).repeat(r);i++}else o+=String.fromCharCode(c)}return o};
+function exportSaveWard(){try{const clean={...S};delete clean.scd;delete clean.csCd;delete clean.debuffCd;delete clean.buffs;delete clean.dbWeak;delete clean.dbPoison;delete clean.waveOn;const raw=JSON.stringify(clean);return btoa(_H(_X(_C(raw)))+":"+_X(_C(raw)))}catch(e){return""}}
+function importSaveWard(code){try{const d=atob(code),sep=d.indexOf(":");if(sep<0)return false;const hash=d.substring(0,sep),enc=d.substring(sep+1);if(_H(enc)!==hash)return false;const dec=_D(_X(enc));const p=JSON.parse(dec);S=Object.assign({},S,p);return true}catch(e){return false}}
+function verifyAdminSeal(code){if(code!==ADMIN_CODE)return false;S.isAdmin=true;S.sovUnlocked=true;saveGame();document.title=document.title.replace(/Spirit Clicker/,"✦ Spirit Clicker ✦");setTimeout(()=>document.title=document.title.replace(/✦ /g,""),2e3);return true}
+
+const REALMS=[{n:"Mortal",t:0,i:0},{n:"Qi Condensation",t:1000,i:2},{n:"Foundation Establishment",t:15000,i:5},{n:"Golden Core",t:150000,i:10},{n:"Nascent Soul",t:1500000,i:25},{n:"Immortal Ascension",t:20000000,i:100}];
+const UPGRADES=[{id:"mat",n:"Meditation Mat",i:"M",d:"+1 Qi/tap",bc:15,cm:1.5,t:"tap",v:1},{id:"array",n:"Spirit Array",i:"A",d:"+5 Qi/s",bc:100,cm:1.6,t:"auto",v:5},{id:"pill",n:"Qi Pill",i:"P",d:"+10 Qi/tap",bc:1000,cm:1.7,t:"tap",v:10},{id:"elder",n:"Sect Elder",i:"E",d:"+50 Qi/s",bc:5000,cm:1.8,t:"auto",v:50},{id:"beast",n:"Spirit Beast",i:"B",d:"+200 Qi/s",bc:25000,cm:1.9,t:"auto",v:200},{id:"heaven",n:"Heavenly Forge",i:"H",d:"+1K Qi/s",bc:100000,cm:2,t:"auto",v:1000},{id:"sat_core",n:"Satellite Core",i:"S",d:"Orbiting Core (+100% Tap to QPS)",bc:10000,cm:2.5,t:"sat",v:1}];
+const SKILLS=[
+{id:"O1",p:"orthodox",n:"Clear Heart",d:"+20% QPS",c:1,r:[],e:{qm:.2}},
+{id:"O2",p:"orthodox",n:"Sect Harmony",d:"+40% QPS",c:2,r:["O1"],e:{qm:.4}},
+{id:"O3",p:"orthodox",n:"Righteous Aura",d:"+60% QPS (req S1)",c:3,r:["O2","S1"],e:{qm:.6}},
+{id:"O4",p:"orthodox",n:"Celestial Law",d:"+100% QPS",c:5,r:["O3"],e:{qm:1}},
+{id:"O5",p:"orthodox",n:"Dao of Peace",d:"+200% QPS",c:8,r:["O4"],e:{qm:2}},
+{id:"D1",p:"demonic",n:"Blood Ignition",d:"+100% tap,-20% QPS",c:1,r:[],e:{tm:1,qm:-.2}},
+{id:"D2",p:"demonic",n:"Soul Siphon",d:"5% chance 10x tap",c:2,r:["D1"],e:{tc:.05}},
+{id:"D3",p:"demonic",n:"Blood Fury",d:"+200% tap",c:4,r:["D2"],e:{tm:2}},
+{id:"D4",p:"demonic",n:"Demon Lord",d:"+300% tap (req B2)",c:6,r:["D3","B2"],e:{tm:3}},
+{id:"D5",p:"demonic",n:"Asura Rebirth",d:"+500% tap,-50% QPS",c:10,r:["D4"],e:{tm:5,qm:-.5}},
+{id:"C1",p:"chaotic",n:"Tribulation Surf",d:"Taps 0.1x-5x",c:1,r:[],e:{tv:1}},
+{id:"C2",p:"chaotic",n:"Storm Gambit",d:"Range 0.5x-8x",c:2,r:["C1"],e:{tv2:1}},
+{id:"C3",p:"chaotic",n:"Fate Weaver",d:"+10% rare rolls",c:3,r:["C2"],e:{lk:.1}},
+{id:"C4",p:"chaotic",n:"Chaos Theory",d:"RNG +50%",c:5,r:["C3"],e:{rb:.5}},
+{id:"C5",p:"chaotic",n:"Primordial Chaos",d:"Taps min 2x",c:8,r:["C4"],e:{tf:1}},
+{id:"B1",p:"body",n:"Iron Skin",d:"+50% tap",c:1,r:[],e:{tm:.5}},
+{id:"B2",p:"body",n:"Steel Bones",d:"+100% tap",c:2,r:["B1"],e:{tm:1}},
+{id:"B3",p:"body",n:"Titan Fist",d:"+200% tap",c:4,r:["B2"],e:{tm:2}},
+{id:"B4",p:"body",n:"Immortal Body",d:"+300% tap,+50% QPS",c:6,r:["B3"],e:{tm:3,qm:.5}},
+{id:"B5",p:"body",n:"Pangu's Might",d:"+500% tap",c:10,r:["B4"],e:{tm:5}},
+{id:"S1",p:"spirit",n:"Mind's Eye",d:"+50% Insight",c:1,r:[],e:{im:.5}},
+{id:"S2",p:"spirit",n:"Astral Projection",d:"+100% Insight",c:2,r:["S1"],e:{im:1}},
+{id:"S3",p:"spirit",n:"Soul Expansion",d:"Skills -1 cost",c:4,r:["S2"],e:{sd:1}},
+{id:"S4",p:"spirit",n:"Cosmic Mind",d:"+200% Insight",c:6,r:["S3"],e:{im:2}},
+{id:"S5",p:"spirit",n:"Omniscience",d:"Quest rewards +50%",c:10,r:["S4"],e:{qb:.5}},
+{id:"V1",p:"void",n:"Void Whisper",d:"+100% all,+1 Corrupt (2 paths)",c:3,r:["ANY2"],e:{am:1,co:1}},
+{id:"V2",p:"void",n:"Null Space",d:"+200% tap,+1 Corrupt",c:4,r:["V1"],e:{tm:2,co:1}},
+{id:"V3",p:"void",n:"Entropy",d:"+300% QPS,+2 Corrupt",c:5,r:["V2"],e:{qm:3,co:2}},
+{id:"V4",p:"void",n:"Void Consumption",d:"Steal 50% QPS→tap,+2 Corr",c:7,r:["V3"],e:{vs:1,co:2}},
+{id:"V5",p:"void",n:"Absolute Void",d:"+1000% all,+3 Corrupt",c:12,r:["V4"],e:{am:10,co:3}},
+{id:"SV1",p:"sovereign",n:"Sovereign's Decree",d:"+200% all",c:0,r:[],e:{am:2}},
+{id:"SV2",p:"sovereign",n:"Time Sovereignty",d:"Cooldowns halved",c:0,r:["SV1"],e:{ch:1}},
+{id:"SV3",p:"sovereign",n:"Reality Warp",d:"Slips every 50 clicks",c:0,r:["SV2"],e:{sr:50}},
+{id:"SV4",p:"sovereign",n:"Infinite Insight",d:"+10 Insight/breakthrough",c:0,r:["SV3"],e:{if:10}},
+{id:"SV5",p:"sovereign",n:"Nexus Ascension",d:"Unlock Nexus,+500% all",c:0,r:["SV4"],e:{am:5,ns:1}},
+{id:"H1",p:"orthodox",n:"Blood Meditation",d:"+80% QPS+tap",c:4,r:["O2","D2"],e:{qm:.8,tm:.8}},
+{id:"H2",p:"chaotic",n:"Storm Body",d:"Taps 3x-5x",c:4,r:["B2","C2"],e:{ts:1}},
+{id:"H3",p:"spirit",n:"Soul Forge",d:"+150% Insight,+50% tap",c:5,r:["S2","B3"],e:{im:1.5,tm:.5}},
+{id:"H4",p:"void",n:"Void Drain",d:"Steal 10% QPS→tap",c:5,r:["V1","D3"],e:{vss:1}},
+{id:"H5",p:"chaotic",n:"Enlightened Chaos",d:"RNG doubled",c:6,r:["S3","C3"],e:{rd:1}},
+{id:"H6",p:"orthodox",n:"Iron Doctrine",d:"+250% QPS,immune neg",c:6,r:["O3","B3"],e:{qm:2.5,imm:1}}
+];
+const WAR_ARTS=[
+{id:"W1",n:"Qi Blade",d:"Creatures +20% DPS",c:50,e:{dd:.2}},
+{id:"W2",n:"Soul Shield",d:"Creatures +50% HP",c:100,e:{ch:.5}},
+{id:"W3",n:"Blood Harvest",d:"+30% SE from invasions",c:200,e:{seb:.3}},
+{id:"W4",n:"War Drums",d:"Creatures +20% DPS",c:300,e:{dd:.2}},
+{id:"W5",n:"Necromancy",d:"Creatures +40% HP",c:500,e:{ch:.4}},
+{id:"W6",n:"Beast Taming",d:"Creatures +30% DPS",c:750,e:{dd:.3}},
+{id:"W7",n:"Fortress Walls",d:"Invaders deal -30% dmg",c:1000,e:{dr:.3}},
+{id:"W8",n:"Soul Bomb",d:"Creatures +40% DPS",c:1500,e:{dd:.4}},
+{id:"W9",n:"Ancestral Fury",d:"Creatures +100% DPS",c:2000,e:{dd:1}},
+{id:"W10",n:"Undying Legion",d:"Creatures +80% HP",c:3000,e:{ch:.8}},
+{id:"W11",n:"Worldbreaker",d:"Creatures +150% DPS",c:5000,e:{dd:1.5}},
+{id:"W12",n:"Sovereign's Army",d:"Creatures +200% DPS & HP",c:0,e:{dd:2,ch:1},admin:true}
+];
+const COMBAT_SKILLS=[
+{id:"cs_bomb",n:"Soul Bomb",i:"!",d:"AoE nuke",cost:100,cd:60,dur:0},
+{id:"cs_rally",n:"Rally Cry",i:"+",d:"+50% DPS 30s",cost:50,cd:90,dur:30},
+{id:"cs_heal",n:"Heal Core",i:"+",d:"Restore 30% HP",cost:75,cd:120,dur:0},
+{id:"cs_freeze",n:"Time Freeze",i:"*",d:"Stop enemies 10s",cost:200,cd:180,dur:10},
+{id:"cs_harvest",n:"Soul Harvest",i:"$",d:"2x SE drops 30s",cost:150,cd:120,dur:30}
+];
+const SPECIES=[{id:"human",n:"Human",i:"H",c:{},d:"No bonus",b:{}},{id:"fox",n:"Spirit Fox",i:"F",c:{qi:10000},d:"+15% tap",b:{tm:.15}},{id:"golem",n:"Stone Golem",i:"G",c:{qi:50000},d:"+25% QPS",b:{qm:.25}},{id:"dragon",n:"Dragon",i:"D",c:{qi:200000,ins:10},d:"+35% all",b:{am:.35}},{id:"phoenix",n:"Phoenix",i:"P",c:{qi:1e6,ins:30},d:"+60% global",b:{am:.6}},{id:"celestial",n:"Celestial",i:"C",c:{re:3},d:"+100% Insight",b:{im:1}},{id:"voidwalker",n:"Void Walker",i:"V",c:{qi:1e7,ins:100},d:"+250% tap,-50% QPS",b:{tm:2.5,qm:-.5}},{id:"nexus",n:"Nexus Being",i:"N",c:{secret:true},d:"+500% all",b:{am:5}}];
+const ACTIVE_SKILLS=[{id:"meditation",n:"Meditation",i:"M",d:"2x QPS 30s",cd:300,dur:30,ef:"qps_double",ul:"free"},{id:"qi_burst",n:"Qi Burst",i:"Q",d:"Gain 1min QPS",cd:180,ef:"qi_burst",ul:"quest:q_first_steps"},{id:"blood_fury",n:"Blood Fury",i:"B",d:"5x tap 20s,-5% Qi",cd:600,dur:20,ef:"tap_5x",ul:"demonic3"},{id:"time_fold",n:"Time Fold",i:"T",d:"Gain 10min QPS",cd:3600,ef:"time_fold",ul:"quest:q_time"},{id:"insight_flash",n:"Insight Flash",i:"I",d:"+1 Insight",cd:1800,ef:"insight_gain",ul:"quest:q_scholar"},{id:"golden_touch",n:"Golden Touch",i:"G",d:"Next 10 taps 10x",cd:900,ef:"golden_touch",ul:"shop:50"},{id:"spirit_surge",n:"Spirit Surge",i:"S",d:"+50% all 60s",cd:480,dur:60,ef:"surge",ul:"species:dragon"},{id:"void_step",n:"Void Step",i:"V",d:"+100K Qi,+1 Corr",cd:1200,ef:"void_step",ul:"void2"}];
+const SHOP_ITEMS=[{id:"qi_pill",cat:"Pills",n:"Qi Gathering Pill",i:"Q",d:"+100% QPS 5min",c:3,t:"con",ef:"qps_pill"},{id:"enlighten_pill",cat:"Pills",n:"Enlightenment Pill",i:"E",d:"+1 Insight",c:5,t:"con",ef:"insight_pill"},{id:"body_pill",cat:"Pills",n:"Body Tempering Pill",i:"B",d:"+10% tap perm",c:8,t:"con",ef:"tap_perm"},{id:"cleanse_pill",cat:"Pills",n:"Cleansing Pill",i:"C",d:"Remove Corruption",c:10,t:"con",ef:"cleanse"},{id:"rebirth_pill",cat:"Pills",n:"Rebirth Pill",i:"R",d:"Keep skills on reinc",c:25,t:"con",ef:"rebirth_keep"},{id:"bronze_ref",cat:"Refiners",n:"Bronze Refiner",i:"1",d:"+10% QPS",c:5,t:"eq",e:{qm:.1}},{id:"silver_ref",cat:"Refiners",n:"Silver Refiner",i:"2",d:"+25% QPS",c:15,t:"eq",e:{qm:.25}},{id:"gold_ref",cat:"Refiners",n:"Gold Refiner",i:"3",d:"+50% QPS",c:40,t:"eq",e:{qm:.5}},{id:"jade_ref",cat:"Refiners",n:"Jade Refiner",i:"4",d:"+75% QPS,+10% Ins",c:80,t:"eq",e:{qm:.75,im:.1}},{id:"void_ref",cat:"Refiners",n:"Void Refiner",i:"5",d:"+150% QPS,+1 Corr",c:150,t:"eq",e:{qm:1.5,co:1}},{id:"lucky_charm",cat:"Artifacts",n:"Lucky Charm",i:"L",d:"+5% rare drops",c:20,t:"art",e:{lk:.05}},{id:"slip_magnet",cat:"Artifacts",n:"Jade Slip Magnet",i:"J",d:"Slips every 80 clicks",c:40,t:"art",e:{sr:80}},{id:"soul_lantern",cat:"Artifacts",n:"Soul Lantern",i:"S",d:"Keep 3 skills on reinc",c:50,t:"art",e:{ks:3}},{id:"void_seal",cat:"Artifacts",n:"Void Seal",i:"V",d:"Unlock Void Path",c:100,t:"art",e:{uv:1}}];
+const DEFENDERS=[{id:"disciple",n:"Outer Disciple",i:"D",d:"Basic defender",bc:50,cm:1.4,dps:5,hp:20},{id:"guard",n:"Sect Guard",i:"G",d:"Sturdy melee",bc:200,cm:1.5,dps:15,hp:60},{id:"archer",n:"Spirit Archer",i:"A",d:"Ranged attacker",bc:500,cm:1.6,dps:30,hp:40},{id:"mage",n:"Formation Mage",i:"M",d:"AoE damage",bc:1500,cm:1.7,dps:60,hp:50},{id:"elder_def",n:"Defensive Elder",i:"E",d:"High HP tank",bc:5000,cm:1.8,dps:20,hp:200},{id:"beast_def",n:"Guardian Beast",i:"B",d:"Fast attacker",bc:15000,cm:1.9,dps:100,hp:120},{id:"tamed_beast",n:"Tamed Beast",i:"T",d:"War Art unlock",bc:30000,cm:2,dps:150,hp:180,req:"W6"},{id:"worldbreaker",n:"Worldbreaker",i:"W",d:"Ultimate defender",bc:100000,cm:2.2,dps:500,hp:800,req:"W11"},{id:"immortal_def",n:"Immortal Sentinel",i:"I",d:"Peak defender",bc:50000,cm:2,dps:300,hp:500}];
+const CREATURES=[{id:"c1",n:"Slime",i:"S",dps:3},{id:"c2",n:"Fang Wolf",i:"W",dps:6},{id:"c3",n:"Stone Golem",i:"G",dps:12},{id:"c4",n:"Ember Drake",i:"D",dps:22},{id:"c5",n:"Void Sentinel",i:"V",dps:40}];
+const DEBUFFS=[{id:"db_weak",n:"Weaken Curse",i:"W",d:"Invaders take +50% dmg 12s",c:20,cd:30},{id:"db_poison",n:"Poison Cloud",i:"P",d:"Invaders bleed +30% 8s",c:25,cd:25},{id:"db_rend",n:"Soul Rend",i:"R",d:"Instant heavy damage",c:45,cd:40}];
+const ROOMS=[{id:"entry",n:"Entry Hall",i:"E",c:0,d:"Starting room",mg:1},{id:"treasure",n:"Treasure Room",i:"T",c:100,d:"+20% soul drops",mg:1},{id:"training",n:"Training Grounds",i:"G",c:200,d:"Defenders +10% DPS",mg:1},{id:"alchemy",n:"Alchemy Lab",i:"A",c:300,d:"Mana regen +0.5/s",mg:4},{id:"library",n:"Library",i:"L",c:400,d:"+15% Insight",mg:4},{id:"armory",n:"Armory",i:"R",c:500,d:"Defenders +10% DPS",mg:5},{id:"throne",n:"Throne Room",i:"K",c:1000,d:"Defenders +20% DPS",mg:5},{id:"void_room",n:"Void Chamber",i:"V",c:2000,d:"+100% SE,+1 Corr",mg:5},{id:"sanctum",n:"Sovereign Sanctum",i:"!",c:0,d:"+200% all (Admin)",mg:5,admin:true}];
+const TRAPS=[{id:"spike",n:"Spike Pit",i:"^",c:50,dmg:10,mx:2},{id:"flame",n:"Flame Rune",i:"*",c:150,dmg:30,mx:2},{id:"slow",n:"Slow Glyph",i:"~",c:100,dmg:0,mx:2},{id:"drain",n:"Soul Drain",i:"$",c:300,dmg:5,mx:1},{id:"void_trap",n:"Void Maw",i:"#",c:800,dmg:999,mx:1}];
+const QUESTS=[{id:"q_first_steps",cat:"Progression",n:"First Steps",d:"Tap 10 times",t:"clicks",tg:10,rw:{st:1,sk:"qi_burst"},ot:1},{id:"q_cultivation",cat:"Progression",n:"Cultivation Begins",d:"Reach 1K Qi",t:"totalQi",tg:1000,rw:{st:2},ot:1},{id:"q_forge",cat:"Progression",n:"The Forge",d:"Buy first upgrade",t:"upgrades",tg:1,rw:{st:1},ot:1},{id:"q_breakthrough",cat:"Progression",n:"Breaking Through",d:"Qi Condensation",t:"realm",tg:1,rw:{st:3},ot:1},{id:"q_path",cat:"Progression",n:"Path Chosen",d:"First skill node",t:"skills",tg:1,rw:{st:2},ot:1},{id:"q_jade",cat:"Progression",n:"Jade Collector",d:"First Jade Slip",t:"slips",tg:1,rw:{st:1},ot:1},{id:"q_gambler",cat:"Progression",n:"Gambler's Heart",d:"Roll a voucher",t:"rolls",tg:1,rw:{st:3},ot:1},{id:"q_golden",cat:"Progression",n:"Golden Ambition",d:"Merge 5 Jade",t:"merges",tg:1,rw:{st:2},ot:1},{id:"q_evolution",cat:"Progression",n:"Evolution",d:"Evolve species",t:"evos",tg:1,rw:{st:5},ot:1},{id:"q_scholar",cat:"Progression",n:"Scholar's Path",d:"5 skill nodes",t:"skills",tg:5,rw:{st:3,sk:"insight_flash"},ot:1},{id:"q_time",cat:"Progression",n:"Time Weaver",d:"Play 30 min",t:"playtime",tg:1800,rw:{st:3,sk:"time_fold"},ot:1},{id:"q_rebirth",cat:"Progression",n:"Rebirth",d:"Reincarnate once",t:"reincs",tg:1,rw:{st:10},ot:1},{id:"q_void",cat:"Progression",n:"Void Toucher",d:"Unlock Void skill",t:"void_sk",tg:1,rw:{st:3},ot:1},{id:"q_ascendant",cat:"Progression",n:"Ascendant",d:"Immortal Ascension",t:"realm",tg:5,rw:{st:20},ot:1},{id:"q_defend",cat:"Progression",n:"First Defense",d:"Survive Wave 1",t:"waves",tg:1,rw:{st:3},ot:1},{id:"q_dungeon",cat:"Progression",n:"Dungeon Builder",d:"Place 3 rooms",t:"rooms",tg:3,rw:{st:3},ot:1},{id:"r_diligent",cat:"Repeatable",n:"Diligent Cultivator",d:"Tap 500 times",t:"clicks_s",tg:500,rw:{st:1},rp:1,cd:1800},{id:"r_hoarder",cat:"Repeatable",n:"Qi Hoarder",d:"Accumulate 50K Qi",t:"qi_s",tg:50000,rw:{st:2},rp:1,cd:3600},{id:"r_study",cat:"Repeatable",n:"Scholar's Study",d:"Buy 3 skill nodes",t:"skills_s",tg:3,rw:{st:3},rp:1,cd:7200},{id:"r_lucky",cat:"Repeatable",n:"Lucky Draw",d:"Roll 3 vouchers",t:"rolls_s",tg:3,rw:{st:2},rp:1,cd:3600},{id:"a_click10k",cat:"Achievement",n:"Click Master",d:"10K total clicks",t:"clicks",tg:10000,rw:{st:5},ot:1},{id:"a_million",cat:"Achievement",n:"Millionaire",d:"1M total Qi",t:"totalQi",tg:1e6,rw:{st:10},ot:1},{id:"a_dao15",cat:"Achievement",n:"Dao Seeker",d:"15 skill nodes",t:"skills",tg:15,rw:{st:5},ot:1},{id:"a_species3",cat:"Achievement",n:"Collector",d:"3 species",t:"sp_count",tg:3,rw:{st:5},ot:1},{id:"a_reborn5",cat:"Achievement",n:"Reborn Legend",d:"5 reincarnations",t:"reincs",tg:5,rw:{st:20},ot:1},{id:"a_wave10",cat:"Achievement",n:"Fortress Lord",d:"Survive Wave 10",t:"waves",tg:10,rw:{st:10},ot:1},{id:"a_corrupt5",cat:"Achievement",n:"Void Consumed",d:"Corruption 5",t:"corruption",tg:5,rw:{st:5,title:"Void Consumed"},ot:1}];
+const TUT_STEPS=[
+{s:"01",t:"Welcome, Dungeon Core!",d:"Tap the glowing core to gather Qi."},
+{s:"02",t:"Build Your Dungeon",d:"Build rooms and traps to buff your creatures."},
+{s:"03",t:"Defend Against Waves",d:"Use your creatures and debuffs to survive."},
+{s:"04",t:"Nexus Delve (Merged)",d:"Creatures defend with HP bars. Traps deal DPS during invasions. Rooms provide combat buffs (Training +10% DPS, Armory +10%, Throne +20%). Alchemy Labs boost mana regen (+0.5/s each). Treasure Rooms boost Soul Essence (+20% each). Mana regens naturally at 1/sec base + room bonuses."},
+{s:"05",t:"Walk the Dao",d:"Unlock skills across 7 paths in the Dao Matrix."},
+{s:"06",t:"Ascend & Grow",d:"Reach 1B Total Qi to Reincarnate."}
+];
+let S={username:"",saveCode:"",isAdmin:false,sovUnlocked:false,qi:0,tqi:0,ins:0,st:0,dp:0,se:0,mana:0,manaCap:100,manaRegen:1,creatures:{},creatHP:{},debuffCd:{},dbWeak:0,dbPoison:0,reincs:0,gm:1,ups:{},skills:[],species:"human",usp:["human"],askills:[],scd:{},clicks:0,cts:0,js:0,gv:0,ggv:0,slipsE:0,trolls:0,tmerges:0,tevos:0,corrupt:0,title:"",playtime:0,qp:{},qc:{},qcd:{},sClicks:0,sQi:0,sSkills:0,sRolls:0,gtTaps:0,buffs:{},eq:null,arts:[],rbKeep:false,defs:{},wave:0,waveOn:false,wHP:0,wMHP:0,coreHP:100,coreMHP:100,warArts:[],csCd:{},dGrid:{},dSize:3,combo:0,comboTimer:0,currentRealm:0};
+let curView="core",lastTick=Date.now(),tutStep=0;
+const cvs=document.getElementById("particles"),ctx=cvs.getContext("2d");
+let parts=[];
+function resizeCvs(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
+window.addEventListener("resize",resizeCvs);resizeCvs();
+function spawnParts(x,y,count){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*3;parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,life:1,size:2+Math.random()*3});}}
+function updateParts(){ctx.clearRect(0,0,cvs.width,cvs.height);for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.05;p.life-=0.02;if(p.life<=0){parts.splice(i,1);continue;}ctx.globalAlpha=p.life;const g=ctx.createLinearGradient(p.x-3,p.y-3,p.x+3,p.y+3);g.addColorStop(0,"#6366f1");g.addColorStop(1,"#a855f7");ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}
+setInterval(updateParts,16);
+let lastAct=Date.now(),isAway=false;const AWAY_MS=120000;
+(function(){const d=document.createElement('div');d.style.cssText='position:fixed;bottom:max(env(safe-area-inset-bottom),16px);left:16px;z-index:150;display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--panel);border:2px solid var(--border);box-shadow:3px 3px 0 #14141c;font-size:.6rem;color:var(--dim);pointer-events:none;font-family:var(--mono)';d.innerHTML='<span id="pw-dot" style="width:8px;height:8px;background:#22c55e;display:inline-block"></span><span id="pw-txt">Active</span>';document.body.appendChild(d);})();
+function syncWard(){const dot=document.getElementById('pw-dot'),txt=document.getElementById('pw-txt');if(!dot)return;if(isAway){dot.style.background='#f59e0b';txt.textContent='Away';}else{dot.style.background='#22c55e';txt.textContent='Active';}}
+function markActive(){lastAct=Date.now();if(isAway){isAway=false;syncWard();}}
+function checkPresence(){const away=document.hidden||(Date.now()-lastAct>AWAY_MS);if(away&&!isAway){isAway=true;syncWard();saveGame();}else if(!away&&isAway){isAway=false;syncWard();}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)markActive();checkPresence();});
+['pointerdown','keydown','touchstart'].forEach(e=>document.addEventListener(e,markActive,{passive:true}));
+setInterval(checkPresence,1000);
+(function(){const prev=parseInt(localStorage.getItem('nexus-presence-lastseen')||'0');const now=Date.now(),gap=now-prev;localStorage.setItem('nexus-presence-lastseen',now);setInterval(()=>localStorage.setItem('nexus-presence-lastseen',Date.now()),5000);if(prev>0&&gap>300000)setTimeout(()=>showToast('Welcome back!'),900);})();
+
+function init(){loadGame();ensureCreatures();if(!S.username){document.getElementById("username-modal").classList.add("active");return;}document.getElementById("username-modal").classList.remove("active");if(S.isAdmin){document.getElementById("nav-admin").style.display="flex";}setupDrawer();
+document.getElementById("mc").addEventListener("touchstart",function(e){if(e.target.closest("#core-btn")){e.preventDefault();for(let i=0;i<e.changedTouches.length;i++){const t=e.changedTouches[i];tapCoreLogic(t.clientX,t.clientY,e.target);}}},{passive:false});
+document.getElementById("mc").addEventListener("mousedown",function(e){if(e.target.closest("#core-btn")){tapCoreLogic(e.clientX,e.clientY,e.target);}});
+switchView("core");setInterval(gameTick,100);window._saveInterval=setInterval(saveGame,5000);setInterval(()=>{S.playtime+=60;},60000);updateUI();}
+function registerUsername(){const inp=document.getElementById("username-input");const name=inp.value.trim();if(name.length<3||name.length>16){showToast("Username must be 3-16 chars");return;}S.username=name;S.saveCode=genCode();saveGame();document.getElementById("username-modal").classList.remove("active");showToast("Welcome, "+name+"! Code: "+S.saveCode);setTimeout(()=>openTutorial(),500);}
+function genCode(){const c="ABCDEFGHIJKLMNOPQRSTUVWXYZ";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function setupDrawer(){document.querySelectorAll(".di").forEach(i=>{i.addEventListener("click",()=>{switchView(i.dataset.view);toggleDrawer();});});}
+function toggleDrawer(){document.getElementById("drawer").classList.toggle("active");document.getElementById("dov").classList.toggle("active");}
+function switchView(v){curView=v;document.querySelectorAll(".di").forEach(i=>i.classList.toggle("active",i.dataset.view===v));const mc=document.getElementById("mc");const R={core:rCore,forge:rForge,dao:rDao,defense:rDefense,wararts:rWarArts,dungeon:rDungeon,mystic:rMystic,evolution:rEvolution,quests:rQuests,shop:rShop,ascend:rAscend,admin:rAdmin};if(R[v])R[v](mc);}
+function reRenderCur(){const mc=document.getElementById("mc");if(curView==="defense")rDefense(mc);else if(curView==="dungeon")rDungeon(mc);}
+
+function rCore(mc){const st=hasSk("SV3")?50:(hasArt("slip_magnet")?80:100);const pct=Math.min((S.cts/st)*100,100);const comboPct=Math.min(S.combo/50*100,100);const comboMult=getComboMult();let sk=ACTIVE_SKILLS.map(s=>{const ul=isSkUl(s);const cd=S.scd[s.id]||0;const oc=cd>0;return`<div class="sk ${ul?"":"lk"} ${oc?"oc":""}" onclick="useAS('${s.id}')" title="${s.n}: ${s.d}">${s.i}${oc?`<div class="cdo">${fT(cd)}</div>`:""}</div>`;}).join("");let cor=S.corrupt>0?`<div class="corruption-bar">CORRUPTION: ${S.corrupt}</div>`:"";let satCount=S.ups.sat_core||0;let satHTML='';if(satCount>0){const vis=Math.min(satCount,8);satHTML=`<div class="orbit-wrapper">`;for(let i=0;i<vis;i++){const angle=(i/vis)*360;satHTML+=`<div class="sat-core" style="transform:rotate(${angle}deg) translateY(-125px) rotate(-${angle}deg);">${SPECIES.find(s=>s.id===S.species)?.i||"H"}</div>`;}satHTML+=`</div>`;}mc.innerHTML=`<div class="cv"><div class="core-container">${satHTML}<div class="sc" id="core-btn">${SPECIES.find(s=>s.id===S.species)?.i||"H"}</div></div><div style="width:100%;max-width:300px"><div class="cpb"><div class="cpf" style="width:${pct}%"></div></div><div class="cpl">JADE SLIP: ${S.cts}/${st}</div><div class="combo-bar"><div class="combo-fill" style="width:${comboPct}%"></div></div><div class="combo-label">COMBO x${comboMult.toFixed(1)}</div></div>${cor}<div class="skr">${sk}</div><div style="font-size:.7rem;color:var(--dim);text-align:center;font-family:var(--mono)">${S.title?`TITLE: ${S.title}<br>`:""}REINCS: ${S.reincs} | MULT: x${S.gm.toFixed(1)}${S.isAdmin?'<br><span style="color:var(--sovereign)">SOVEREIGN ACCESS</span>':""}</div></div>`;}
+function rForge(mc){let h=`<div class="lv"><div class="st">Artifacts & Formations</div>`;UPGRADES.forEach(u=>{const c=gUC(u),cnt=S.ups[u.id]||0,can=S.qi>=c;h+=`<div class="cd2 ${can?"":"dis"}" onclick="buyUpg('${u.id}')"><div class="cdi">${u.i}</div><div class="cdn"><div class="cdt">${u.n} <span style="color:var(--dim)">x${cnt}</span></div><div class="cdd">${u.d}</div><div class="cdc">${fN(c)} Qi</div></div></div>`;});mc.innerHTML=h+"</div>";}
+function rDao(mc){const paths=[{k:"orthodox",n:"Orthodox",c:"var(--orthodox)"},{k:"demonic",n:"Demonic",c:"var(--demonic)"},{k:"chaotic",n:"Chaotic",c:"var(--chaotic)"},{k:"body",n:"Body",c:"var(--body)"},{k:"spirit",n:"Spirit",c:"var(--spirit)"},{k:"void",n:"Void",c:"var(--void)"}];if(S.sovUnlocked)paths.push({k:"sovereign",n:"Sovereign",c:"var(--sovereign)"});let h=`<div class="lv">`;paths.forEach(p=>{h+=`<div class="st">${p.n}</div>`;SKILLS.filter(s=>s.p===p.k&&!s.id.startsWith("H")).forEach(s=>{const ul=S.skills.includes(s.id),rm=chkReq(s),co=hasSk("S3")?Math.max(1,s.c-1):s.c,can=!ul&&rm&&S.ins>=co;let cls=`cd2 p-${s.p}`;if(ul)cls+=" dis";else if(!rm)cls+=" lk";else if(!can)cls+=" dis";let rq=s.r.includes("ANY2")?"Req: 2 diff paths":s.r.length?`Req: ${s.r.join(", ")}`:"";h+=`<div class="${cls}" onclick="buySN('${s.id}')"><div class="cdn"><div class="cdt">${s.n} ${ul?"[OK]":""}</div><div class="cdd">${s.d}</div>${rq?`<div class="cdd" style="font-style:italic">${rq}</div>`:""}<div class="cdc">${ul?"Mastered":`Cost: ${co} Insight`}</div></div></div>`;});});h+=`<div class="st">Hybrid Skills</div>`;SKILLS.filter(s=>s.id.startsWith("H")).forEach(s=>{const ul=S.skills.includes(s.id),rm=s.r.every(r=>S.skills.includes(r)),co=hasSk("S3")?Math.max(1,s.c-1):s.c,can=!ul&&rm&&S.ins>=co;let cls=`cd2 p-${s.p}`;if(ul)cls+=" dis";else if(!rm)cls+=" lk";else if(!can)cls+=" dis";h+=`<div class="${cls}" onclick="buySN('${s.id}')"><div class="cdn"><div class="cdt">${s.n} ${ul?"[OK]":""}</div><div class="cdd">${s.d}</div><div class="cdd" style="font-style:italic">Req: ${s.r.join(" + ")}</div><div class="cdc">${ul?"Mastered":`Cost: ${co} Insight`}</div></div></div>`;});mc.innerHTML=h+"</div>";}
+function rDefense(mc){const tdps=getDPS(),trapD=getTrapDPS(),sz=S.isAdmin?10:S.dSize,maxSz=S.isAdmin?12:7;let h=`<div class="lv"><div class="wb"><div style="font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:2px;font-family:var(--mono)">Nexus Delve</div><div class="wn">${S.waveOn?`WAVE ${S.wave+1}`:`WAVE ${S.wave+1} READY`}</div><div style="font-size:.75rem;color:var(--dim);margin-top:4px;font-family:var(--mono)">Invader HP: ${fN(S.wHP)} / ${fN(S.wMHP)}</div><div class="hpb"><div class="hpf" style="width:${S.wMHP>0?(S.wHP/S.wMHP)*100:0}%"></div></div><div style="font-size:.7rem;color:var(--dim);margin-top:6px;font-family:var(--mono)">DPS ${fN(tdps+trapD)} | MANA <span id="def-mana-live">${Math.floor(S.mana)}/${S.manaCap}</span></div>${!S.waveOn?`<button class="btn bp" style="margin-top:12px;width:100%" onclick="startWave()">BEGIN INVASION ${S.wave+1}</button>`:'<div style="margin-top:8px;font-size:.8rem;color:var(--se);font-weight:700;font-family:var(--mono)">INVASION IN PROGRESS</div>'}</div>`;h+=`<div class="st">Debuff Magic (Mana)</div><div class="skr">`;DEBUFFS.forEach(db=>{const cdEnd=S.debuffCd[db.id]||0;const rem=cdEnd>Date.now()?Math.ceil((cdEnd-Date.now())/1000):0;const oc=rem>0;const can=S.mana>=db.c&&!oc&&S.waveOn;h+=`<div class="sk ${can?"":"lk"} ${oc?"oc":""}" onclick="castDebuff('${db.id}')" title="${db.n}: ${db.d}">${db.i}${oc?`<div class="cdo">${fT(rem)}</div>`:""}</div>`;});h+=`</div><div class="st">Your Creatures (Qi)</div>`;CREATURES.forEach(c=>{const lv=S.creatures[c.id]||1;const cost=getCreatureCost(c,lv);const can=S.qi>=cost;const mhp=getCreatMaxHP(c,lv);const chp=Math.max(0,S.creatHP[c.id]||0);const hpPct=Math.min(100,(chp/mhp)*100);h+=`<div class="cd2 dc ${can?"":"dis"}" onclick="levelCreature('${c.id}')"><div class="cdi">${c.i}</div><div class="cdn"><div class="cdt">${c.n} <span style="color:var(--blue)">Lv.${lv}</span>${chp<=0&&S.waveOn?' <span style="color:var(--se)">[KO]</span>':''}</div><div class="cdd">DPS: ${fN(c.dps*lv*getCreaDPSMult())} · HP: ${fN(chp)}/${fN(mhp)}</div><div class="hpb" style="height:6px;margin-top:4px"><div class="hpf" style="width:${hpPct}%;background:var(--body)"></div></div><div class="cdc">${fN(cost)} Qi</div></div></div>`;});h+=`<div class="st">Build Dungeon (Mana)</div><div class="dg-wrap"><div class="dg-grid" style="grid-template-columns:repeat(${sz},46px)">`;for(let y=0;y<sz;y++)for(let x=0;x<sz;x++){const key=`${x},${y}`;const cell=S.dGrid[key];h+=`<div class="dg-cell ${cell?"owned":""}" onclick="clickCell(${x},${y})">${cell?(cell.trap?TRAPS.find(t=>t.id===cell.trap)?.i||"":ROOMS.find(r=>r.id===cell.room)?.i||""):""}${cell?.trap?'<div class="trap-dot"></div>':""}</div>`;}h+=`</div><div class="dg-palette">`;ROOMS.forEach(r=>{if(r.admin&&!S.isAdmin)return;if(r.mg>sz)return;const can=S.mana>=r.c;h+=`<div class="dg-pal-item ${can?"":"dis"}" onclick="selectBuild('room','${r.id}')">${r.i}<br>${r.n.split(' ')[0]}<br>${r.c>0?r.c+"mn":"Free"}</div>`;});h+=`</div><div class="dg-palette" style="margin-top:6px">`;TRAPS.forEach(t=>{const can=S.mana>=t.c;h+=`<div class="dg-pal-item ${can?"":"dis"}" onclick="selectBuild('trap','${t.id}')">${t.i}<br>${t.n.split(' ')[0]}<br>${t.c}mn</div>`;});h+=`</div>`;if(sz<maxSz){const ec=sz<5?500:sz<7?1500:sz<10?5000:15000;const can=S.mana>=ec;h+=`<button class="btn ${can?"bp":"bs"}" style="width:100%;margin-top:8px" onclick="expandGrid()" ${can?"":"disabled"}>Expand Grid (${ec}mn)</button>`;}h+=`</div>`;mc.innerHTML=h+"</div>";}
+function rWarArts(mc){let h=`<div class="lv"><div style="text-align:center;margin-bottom:12px;font-family:var(--mono)"><span style="font-size:1.2rem;font-weight:700">${S.se} SOUL ESSENCE</span></div><div class="st">War Arts Skill Tree</div>`;WAR_ARTS.forEach(w=>{if(w.admin&&!S.isAdmin)return;const ul=S.warArts.includes(w.id),can=!ul&&S.se>=w.c;let cls=`cd2 pw ${ul?"dis":(can?"":"dis")}`;h+=`<div class="${cls}" onclick="buyWA('${w.id}')"><div class="cdn"><div class="cdt">${w.n} ${ul?"[OK]":""}</div><div class="cdd">${w.d}</div><div class="cdc">${ul?"Mastered":`${w.c} SE`}</div></div></div>`;});mc.innerHTML=h+"</div>";}
+function rDungeon(mc){const sz=S.isAdmin?10:S.dSize;const maxSz=S.isAdmin?12:7;let h=`<div class="lv"><div class="dg-wrap"><div style="text-align:center;font-family:var(--mono)"><span style="font-size:1.2rem;font-weight:700"><span id="dung-mana-live">${Math.floor(S.mana)}</span> MANA</span></div><div class="dg-stats"><span>Grid: ${sz}x${sz}</span><span>Rooms: ${Object.keys(S.dGrid).length}</span><span>Mana/s: ${getManaRate().toFixed(1)}</span></div><div class="dg-grid" style="grid-template-columns:repeat(${sz},46px)">`;for(let y=0;y<sz;y++)for(let x=0;x<sz;x++){const key=`${x},${y}`;const cell=S.dGrid[key];const owned=!!cell;h+=`<div class="dg-cell ${owned?"owned":""}" onclick="clickCell(${x},${y})">${owned?(cell.trap?TRAPS.find(t=>t.id===cell.trap)?.i||"":ROOMS.find(r=>r.id===cell.room)?.i||""):""}${cell?.trap?'<div class="trap-dot"></div>':""}</div>`;}h+=`</div><div class="st">Build</div><div class="dg-palette">`;ROOMS.forEach(r=>{if(r.admin&&!S.isAdmin)return;if(r.mg>sz)return;const can=S.mana>=r.c;h+=`<div class="dg-pal-item ${can?"":"dis"}" onclick="selectBuild('room','${r.id}')">${r.i}<br>${r.n}<br>${r.c>0?r.c+" mn":"Free"}</div>`;});h+=`</div><div class="st">Traps (place in rooms)</div><div class="dg-palette">`;TRAPS.forEach(t=>{const can=S.mana>=t.c;h+=`<div class="dg-pal-item ${can?"":"dis"}" onclick="selectBuild('trap','${t.id}')">${t.i}<br>${t.n}<br>${t.c} mn</div>`;});h+=`</div>`;if(sz<maxSz){const ec=sz<5?500:sz<7?1500:sz<10?5000:15000;const can=S.mana>=ec;h+=`<div style="margin-top:12px;text-align:center"><button class="btn ${can?"bp":"bs"}" style="width:100%" onclick="expandGrid()" ${can?"":"disabled"}>Expand to ${sz+1}x${sz+1} (${ec} mn)</button></div>`;}h+=`</div></div>`;mc.innerHTML=h;}
+let buildMode=null,buildId=null;
+function selectBuild(type,id){buildMode=type;buildId=id;showToast(`Selected: ${type==="room"?ROOMS.find(r=>r.id===id)?.n:TRAPS.find(t=>t.id===id)?.n}. Tap a grid cell.`);}
+function clickCell(x,y){if(!buildMode)return;const key=`${x},${y}`;const sz=S.isAdmin?10:S.dSize;if(x>=sz||y>=sz)return;if(buildMode==="room"){const r=ROOMS.find(rm=>rm.id===buildId);if(!r||S.mana<r.c)return;if(S.dGrid[key]){showToast("Cell occupied");return;}S.mana-=r.c;S.dGrid[key]={room:buildId,trap:null};if(r.e?.co)S.corrupt+=r.e.co;uQP("rooms",1);showToast(`Built: ${r.n}`);saveGame();reRenderCur();updateUI();}else if(buildMode==="trap"){const t=TRAPS.find(tr=>tr.id===buildId);if(!t||S.mana<t.c)return;const cell=S.dGrid[key];if(!cell){showToast("Place traps inside rooms only");return;}if(cell.trap){showToast("Already has a trap");return;}const sameRoom=Object.values(S.dGrid).filter(c=>c.room===cell.room&&c.trap===buildId).length;if(sameRoom>=t.mx){showToast(`Max ${t.mx} per room type`);return;}S.mana-=t.c;cell.trap=buildId;showToast(`Placed: ${t.n}`);saveGame();reRenderCur();updateUI();}buildMode=null;buildId=null;}
+function expandGrid(){const sz=S.isAdmin?10:S.dSize;const ec=sz<5?500:sz<7?1500:sz<10?5000:15000;if(S.mana>=ec){S.mana-=ec;if(!S.isAdmin)S.dSize++;showToast(`Expanded to ${S.dSize}x${S.dSize}!`);saveGame();reRenderCur();updateUI();}}
+function getManaRate(){let alch=0;Object.values(S.dGrid).forEach(c=>{if(c.room==="alchemy")alch++;});return 1+alch*0.5;}
+function rMystic(mc){mc.innerHTML=`<div class="lv"><div class="st">Jade Slips & Vouchers</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;margin-bottom:16px"><div style="padding:12px;background:var(--panel);border:2px solid var(--border)"><div style="font-size:1.2rem;font-weight:700;font-family:var(--mono)">${S.js}</div><div style="font-size:.65rem;color:var(--dim);font-family:var(--mono)">JADE</div></div><div style="padding:12px;background:var(--panel);border:2px solid var(--border)"><div style="font-size:1.2rem;font-weight:700;font-family:var(--mono)">${S.gv}</div><div style="font-size:.65rem;color:var(--dim);font-family:var(--mono)">VOUCHER</div></div><div style="padding:12px;background:var(--panel);border:2px solid var(--border)"><div style="font-size:1.2rem;font-weight:700;font-family:var(--mono)">${S.ggv}</div><div style="font-size:.65rem;color:var(--dim);font-family:var(--mono)">GOLDEN</div></div></div><div class="st">Actions</div><div class="cd2 ${S.js<1?"dis":""}" onclick="openJS()"><div class="cdi">J</div><div class="cdn"><div class="cdt">Open Jade Slip</div></div></div><div class="cd2 ${S.js<5?"dis":""}" onclick="mergeJ()"><div class="cdi">+</div><div class="cdn"><div class="cdt">5 Jade = 1 Voucher</div></div></div><div class="cd2 ${S.gv<5?"dis":""}" onclick="mergeG()"><div class="cdi">+</div><div class="cdn"><div class="cdt">5 Vouchers = 1 Golden</div></div></div><div class="cd2 ${S.ggv<1?"dis":""}" onclick="splitG()"><div class="cdi">-</div><div class="cdn"><div class="cdt">1 Golden = 5 Vouchers</div></div></div><div class="st">Rolling</div><div class="cd2 ${S.gv<1?"dis":""}" onclick="rollV()"><div class="cdi">?</div><div class="cdn"><div class="cdt">Roll Voucher</div></div></div><div class="cd2 ${S.ggv<1?"dis":""}" onclick="rollGV()"><div class="cdi">!</div><div class="cdn"><div class="cdt">Roll Golden</div></div></div></div>`;}
+function rEvolution(mc){let h=`<div class="lv"><div class="st">Species Evolution</div>`;SPECIES.forEach(sp=>{const ul=S.usp.includes(sp.id),act=S.species===sp.id,can=chkSpC(sp);let cls=`cd2 ${act?"dis":(!ul&&!can?"dis":"")}`;let ct=sp.id==="human"?"Free":fSpC(sp.c);if(sp.c.secret)ct="Sovereign Only";h+=`<div class="${cls}" onclick="evoSp('${sp.id}')" style="${act?"border-color:var(--blue)":""}"><div class="cdi">${sp.i}</div><div class="cdn"><div class="cdt">${sp.n} ${act?"(Active)":""} ${ul&&!act?"[OK]":""}</div><div class="cdd">${sp.d}</div><div class="cdc">${ul?(act?"Current":"Switch: 1K Qi"):ct}</div></div></div>`;});mc.innerHTML=h+"</div>";}
+function qPrio(q){const done=S.qc[q.id];const onCd=q.rp&&S.qcd[q.id]&&S.qcd[q.id]>Date.now();if(done&&q.ot)return 3;if(onCd)return 2;if(gQP(q)>=q.tg&&!done)return 0;return 1;}
+function rQuests(mc){const cats=["Progression","Repeatable","Achievement"];let h=`<div class="lv">`;cats.forEach(cat=>{h+=`<div class="st">${cat}</div>`;QUESTS.filter(q=>q.cat===cat).slice().sort((a,b)=>qPrio(a)-qPrio(b)).forEach(q=>{const done=S.qc[q.id],prog=gQP(q),pct=Math.min((prog/q.tg)*100,100),onCd=q.rp&&S.qcd[q.id]&&S.qcd[q.id]>Date.now();if(done&&q.ot)return;let cls=`cd2 qc ${done||onCd?"dis":""}`;let btn="";if(pct>=100&&!done&&!onCd)btn=`<button class="qcl" onclick="claimQ('${q.id}',event)">Claim</button>`;else if(onCd){const rem=Math.ceil((S.qcd[q.id]-Date.now())/1000);btn=`<span style="font-size:.65rem;color:var(--dim);font-family:var(--mono)">${fT(rem)}</span>`;}h+=`<div class="${cls}"><div class="cdn"><div class="cdt">${q.n}</div><div class="cdd">${q.d}</div><div class="cdd" style="color:var(--gold);font-family:var(--mono)">Reward: ${fRW(q.rw)}</div><div class="qb"><div class="qf" style="width:${pct}%"></div></div><div style="font-size:.6rem;color:var(--dim);margin-top:2px;font-family:var(--mono)">${Math.floor(prog)} / ${q.tg}</div></div><div class="cdr">${btn}</div></div>`;});});mc.innerHTML=h+"</div>";}
+function rShop(mc){const cats=["Pills","Refiners","Artifacts"];let h=`<div class="lv"><div style="text-align:center;margin-bottom:12px;font-family:var(--mono)"><span style="font-size:1.2rem;font-weight:700">${S.st} SPIRIT STONES</span></div>`;cats.forEach(cat=>{h+=`<div class="st">${cat}</div><div class="sg">`;SHOP_ITEMS.filter(i=>i.cat===cat).forEach(item=>{const own=item.t==="eq"?S.eq===item.id:item.t==="art"?S.arts.includes(item.id):false;const can=S.st>=item.c&&!own;h+=`<div class="si ${can?"":"dis"}" onclick="buySI('${item.id}')"><div class="sii">${item.i}</div><div class="sin">${item.n}</div><div class="sid">${item.d}</div><div class="sic">${own?"[OWNED]":`${item.c} ST`}</div></div>`;});h+=`</div>`;});mc.innerHTML=h+"</div>";}
+function rAscend(mc){mc.innerHTML=`<div class="cv" style="gap:16px;text-align:center;padding-top:20px"><div style="font-size:2rem;font-family:var(--mono);color:var(--purple)">!!</div><h3 style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--mono)">REINCARNATION CYCLE</h3><p style="font-size:.8rem;color:var(--dim);max-width:280px;line-height:1.5">Sever cultivation. Lose Qi, Upgrades, Skills.<br>Keep Insight & Stones. Gain <strong style="color:var(--blue)">+20% Global Mult</strong>.<br>Requires: <strong style="font-family:var(--mono)">${fN(getReincReq())}</strong> Total Qi.<br>${S.rbKeep?'<span style="color:var(--gold)">Rebirth Pill: Skills kept!</span>':""}</p><button class="btn bp" style="max-width:200px;padding:14px" onclick="openReincModal()">Reincarnate</button><div style="margin-top:24px;width:100%;max-width:300px"><div class="st">Identity</div><div style="padding:12px;background:var(--panel);border:2px solid var(--border);text-align:center"><div style="font-size:1rem;font-weight:700;color:var(--blue);font-family:var(--mono)">${S.username}</div><div style="font-size:.9rem;letter-spacing:2px;color:var(--dim);margin-top:4px;font-family:var(--mono)">${S.saveCode}</div><button class="btn bs" style="width:100%;margin-top:10px" onclick="adminExport()">EXPORT SAVE</button><button class="btn bs" style="width:100%;margin-top:8px" onclick="adminImportPrompt()">IMPORT SAVE</button></div><div style="margin-top:16px"><div class="st">Admin Verification</div><div style="padding:12px;background:var(--panel);border:2px solid var(--border);text-align:center"><div style="font-size:.8rem;margin-bottom:8px">Are you the Sect Leader?</div><input class="mi" id="admin-input" placeholder="Enter admin code..." maxlength="20" style="margin-bottom:8px"><button class="btn bg" style="width:100%" onclick="verifyAdmin()">Verify</button>${S.isAdmin?'<div style="margin-top:8px;color:var(--sovereign);font-weight:700;font-family:var(--mono)">VERIFIED</div>':""}</div></div></div></div>`;}
+function rAdmin(mc){if(!S.isAdmin){mc.innerHTML=`<div class="cv"><div style="font-size:2rem;font-family:var(--mono)">!!</div><h3>Admin Access Required</h3><p style="color:var(--dim)">Verify in Ascend tab first.</p></div>`;return;}mc.innerHTML=`<div class="lv"><div class="st">Admin Panel</div><div class="ap-section"><div class="ap-title">Identity</div><div class="ap-row"><span style="font-size:.8rem;color:var(--dim)">Username:</span><span style="font-weight:700;font-family:var(--mono)">${S.username}</span></div><div class="ap-row"><span style="font-size:.8rem;color:var(--dim)">Save Code:</span><span class="ap-code">${S.saveCode}</span></div></div><div class="ap-section"><div class="ap-title">Grant Currencies</div><div class="ap-row"><input class="ap-input" id="grant-amt" placeholder="Amount" type="number"><button class="ap-btn" onclick="adminGrant('qi')">Qi</button><button class="ap-btn" onclick="adminGrant('ins')">Insight</button><button class="ap-btn" onclick="adminGrant('st')">Stones</button><button class="ap-btn" onclick="adminGrant('dp')">DP</button><button class="ap-btn" onclick="adminGrant('se')">SE</button><button class="ap-btn" onclick="adminGrant('mana')">Mana</button></div></div><div class="ap-section"><div class="ap-title">Quick Actions</div><div class="ap-row"><button class="ap-btn" onclick="adminUnlockAll()">Unlock All Skills</button><button class="ap-btn" onclick="adminUnlockSpecies()">Unlock All Species</button></div><div class="ap-row"><button class="ap-btn" onclick="adminToggleSov()">Toggle Sovereign</button></div></div><div class="ap-section"><div class="ap-title">Save Transfer</div><div class="ap-row"><button class="ap-btn" onclick="adminExport()">Export Save</button><button class="ap-btn" style="background:var(--panel-h);color:var(--text)" onclick="adminImportPrompt()">Import Save</button></div><div class="ap-row"><button class="ap-btn" style="background:var(--demonic)" onclick="adminReset()">RESET ALL PROGRESS</button></div></div><div class="ap-section"><div class="ap-title">Change Username</div><div class="ap-row"><input class="ap-input" id="new-username" placeholder="New username" maxlength="16"><button class="ap-btn" onclick="adminChangeName()">Update</button></div></div></div>`;}
+
+function tapCoreLogic(cx,cy,target){let base=getTP(),final=base;if(hasSk("C1")||hasSk("C2")){if(hasSk("H2"))final=base*(3+Math.random()*2);else if(hasSk("C5"))final=base*(2+Math.random()*3);else if(hasSk("C2"))final=base*(.5+Math.random()*7.5);else final=base*(.1+Math.random()*4.9);}if(hasSk("D2")&&Math.random()<.05){final*=10;showToast("Soul Siphoned! 10x!");}if(S.gtTaps>0){final*=10;S.gtTaps--;}if(S.buffs.tap_5x&&S.buffs.tap_5x>Date.now())final*=5;if(S.buffs.surge&&S.buffs.surge>Date.now())final*=1.5;final*=getComboMult();S.qi+=final;S.tqi+=final;S.clicks++;S.cts++;S.sClicks++;S.combo=Math.min(S.combo+1,50);S.comboTimer=Date.now()+2000;const st=hasSk("SV3")?50:(hasArt("slip_magnet")?80:100);if(S.cts>=st){S.cts=0;S.js++;S.slipsE++;showToast("Jade Slip!");uQP("slips",1);}chkRealm();uQP("clicks",1);uQP("clicks_s",1);uQP("totalQi",final);uQP("qi_s",final);spawnFloat({clientX:cx,clientY:cy,target},final);spawnParts(cx,cy,6+Math.min(Math.floor(final/1000),10));updateUI();if(curView==="core")rCore(document.getElementById("mc"));}
+function getComboMult(){return 1+S.combo*0.02;}
+function gameTick(){const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;if(now>S.comboTimer)S.combo=Math.max(0,S.combo-1);let qps=getQPS();if(S.buffs.qps_double&&S.buffs.qps_double>now)qps*=2;if(S.buffs.qps_pill&&S.buffs.qps_pill>now)qps*=2;if(S.buffs.surge&&S.buffs.surge>now)qps*=1.5;if(qps>0){const g=qps*dt;S.qi+=g;S.tqi+=g;S.sQi+=g;}S.mana=Math.min(S.manaCap,S.mana+getManaRate()*dt);Object.keys(S.scd).forEach(k=>{if(S.scd[k]>0)S.scd[k]-=dt;if(S.scd[k]<0)S.scd[k]=0;});Object.keys(S.csCd).forEach(k=>{if(S.csCd[k]>0)S.csCd[k]-=dt;if(S.csCd[k]<0)S.csCd[k]=0;});if(S.waveOn){let dps=(getDPS()+getTrapDPS())*getRoomDPSMult();if(S.dbWeak>Date.now())dps*=1.5;if(S.dbPoison>Date.now())dps*=1.3;S.wHP-=dps*dt;let alive=CREATURES.filter(c=>(S.creatHP[c.id]||0)>0);if(alive.length){const invDPS=4*Math.pow(1.35,S.wave)*getInvDmgMult();const per=invDPS*dt/alive.length;alive.forEach(c=>{S.creatHP[c.id]=Math.max(0,S.creatHP[c.id]-per);});}if(S.wHP<=0){S.wHP=0;S.waveOn=false;S.wave++;const seR=Math.floor(10*Math.pow(1.4,S.wave)*getSEMult()*getRoomSEMult());const manaR=Math.floor(20*Math.pow(1.2,S.wave));S.se+=seR;S.mana=Math.min(S.manaCap,S.mana+manaR);healCreatures();uQP("waves",1);showToast(`Invasion ${S.wave} repelled! +${seR} SE +${manaR} MN`);if(curView==="defense")rDefense(document.getElementById("mc"));}else if(!CREATURES.some(c=>(S.creatHP[c.id]||0)>0)&&getTrapDPS()<=0){S.waveOn=false;healCreatures();showToast("Creatures overwhelmed!");if(curView==="defense")rDefense(document.getElementById("mc"));}}chkRealm();uQP("playtime",dt);updateUI();var _mf=Math.floor(S.mana);if(_mf!==window._lm){window._lm=_mf;var dml=document.getElementById("def-mana-live");if(dml)dml.textContent=Math.floor(S.mana)+"/"+S.manaCap;var dnml=document.getElementById("dung-mana-live");if(dnml)dnml.textContent=Math.floor(S.mana);if(curView==="defense"&&!S.waveOn)rDefense(document.getElementById("mc"));}if(curView==="defense"&&S.waveOn)rDefense(document.getElementById("mc"));if(curView==="core")rCore(document.getElementById("mc"));}
+function waSum(k){let s=0;WAR_ARTS.forEach(w=>{if(S.warArts.includes(w.id)&&w.e[k])s+=w.e[k];});return s;}
+function getCreaDPSMult(){return 1+waSum("dd");}
+function getCreaHPMult(){return 1+waSum("ch");}
+function getInvDmgMult(){return Math.max(.1,1-waSum("dr"));}
+function getSEMult(){return 1+waSum("seb");}
+function getCreatMaxHP(c,lv){return Math.floor(c.dps*10*lv*getCreaHPMult());}
+function healCreatures(){CREATURES.forEach(c=>{const lv=S.creatures[c.id]||1;S.creatHP[c.id]=getCreatMaxHP(c,lv);});}
+function getTP(){let b=1;UPGRADES.filter(u=>u.t==="tap").forEach(u=>b+=(S.ups[u.id]||0)*u.v);let m=1,am=S.gm;SKILLS.filter(s=>S.skills.includes(s.id)).forEach(s=>{if(s.e.tm)m+=s.e.tm;if(s.e.am)am+=s.e.am;});const sp=SPECIES.find(s=>s.id===S.species);if(sp?.b.tm)m+=sp.b.tm;if(sp?.b.am)am+=sp.b.am;if(S.arts.includes("body_pill_perm"))m+=.1;if(S.corrupt>=3&&!hasSk("H6"))m*=.8;return Math.max(1,b*m*am);}
+function getQPS(){let b=0;UPGRADES.filter(u=>u.t==="auto").forEach(u=>b+=(S.ups[u.id]||0)*u.v);b+=(S.ups.sat_core||0)*getTP();let m=1,am=S.gm;SKILLS.filter(s=>S.skills.includes(s.id)).forEach(s=>{if(s.e.qm)m+=s.e.qm;if(s.e.am)am+=s.e.am;});if(S.eq){const eq=SHOP_ITEMS.find(i=>i.id===S.eq);if(eq?.e?.qm)m+=eq.e.qm;}const sp=SPECIES.find(s=>s.id===S.species);if(sp?.b.qm)m+=sp.b.qm;if(sp?.b.am)am+=sp.b.am;if(S.corrupt>=3&&!hasSk("H6"))m*=.8;if(S.corrupt>=5)return 0;return Math.max(0,b*m*am);}
+function getDPS(){let d=0;CREATURES.forEach(c=>{const lv=S.creatures[c.id]||1;if(!S.waveOn||(S.creatHP[c.id]||0)>0)d+=c.dps*lv;});return d*getCreaDPSMult();}
+function getTrapDPS(){let d=0;Object.values(S.dGrid).forEach(c=>{if(c.trap){const t=TRAPS.find(x=>x.id===c.trap);if(t)d+=t.dmg;}});return d;}
+function getRoomDPSMult(){let m=1,n={};Object.values(S.dGrid).forEach(c=>{n[c.room]=(n[c.room]||0)+1;});m+=(n.training||0)*.1+(n.armory||0)*.1+(n.throne||0)*.2;return m;}
+function getRoomSEMult(){let m=1,n={};Object.values(S.dGrid).forEach(c=>{n[c.room]=(n[c.room]||0)+1;});m+=(n.treasure||0)*.2;return m;}
+function ensureCreatures(){if(!S.creatures)S.creatures={};if(!S.creatHP)S.creatHP={};CREATURES.forEach(c=>{if(!(c.id in S.creatures))S.creatures[c.id]=1;if(!(c.id in S.creatHP))S.creatHP[c.id]=getCreatMaxHP(c,S.creatures[c.id]);});}
+function getCreatureCost(c,lv){return Math.floor(30*c.dps*Math.pow(lv,1.6));}
+function levelCreature(id){const c=CREATURES.find(x=>x.id===id);const lv=S.creatures[id]||1;const cost=getCreatureCost(c,lv);if(S.qi>=cost){S.qi-=cost;S.creatures[id]=lv+1;S.creatHP[id]=getCreatMaxHP(c,lv+1);showToast(`${c.n} -> Lv.${lv+1}`);saveGame();reRenderCur();updateUI();}}
+function castDebuff(id){const db=DEBUFFS.find(x=>x.id===id);if(!S.waveOn){showToast("No invasion active");return;}if(S.mana<db.c){showToast("Not enough mana");return;}if((S.debuffCd[id]||0)>Date.now()){showToast("On cooldown");return;}S.mana-=db.c;S.debuffCd[id]=Date.now()+db.cd*1000;if(id==="db_weak"){S.dbWeak=Date.now()+12000;showToast("Invaders weakened!");}else if(id==="db_poison"){S.dbPoison=Date.now()+8000;showToast("Poison cloud!");}else if(id==="db_rend"){S.wHP-=getDPS()*3;showToast("Soul Rend!");}reRenderCur();updateUI();}
+function getIM(){let m=1;SKILLS.filter(s=>S.skills.includes(s.id)).forEach(s=>{if(s.e.im)m+=s.e.im;});const sp=SPECIES.find(s=>s.id===S.species);if(sp?.b.im)m+=sp.b.im;if(S.eq){const eq=SHOP_ITEMS.find(i=>i.id===S.eq);if(eq?.e?.im)m+=eq.e.im;}return m;}
+function gUC(u){return Math.floor(u.bc*Math.pow(u.cm,S.ups[u.id]||0));}
+function hasSk(id){return S.skills.includes(id);}
+function hasArt(id){return S.arts.includes(id);}
+function hasWA(id){return S.warArts.includes(id);}
+function chkReq(s){if(s.r.includes("ANY2")){const p=new Set(SKILLS.filter(sk=>S.skills.includes(sk.id)&&!sk.id.startsWith("H")).map(sk=>sk.p));return p.size>=2;}return s.r.every(r=>S.skills.includes(r));}
+function isSkUl(as){if(as.ul==="free")return true;if(as.ul.startsWith("quest:"))return S.qc[as.ul.replace("quest:","")];if(as.ul==="demonic3")return S.skills.filter(s=>s.startsWith("D")).length>=3;if(as.ul==="void2")return S.skills.includes("V2");if(as.ul.startsWith("species:"))return S.usp.includes(as.ul.replace("species:",""));return false;}
+function buyUpg(id){const u=UPGRADES.find(x=>x.id===id),c=gUC(u);if(S.qi>=c){S.qi-=c;S.ups[u.id]=(S.ups[u.id]||0)+1;uQP("upgrades",1);updateUI();if(curView==="forge")rForge(document.getElementById("mc"));}}
+function buySN(id){const s=SKILLS.find(x=>x.id===id);if(S.skills.includes(id)||!chkReq(s))return;const co=hasSk("S3")?Math.max(1,s.c-1):s.c;if(S.ins<co)return;S.ins-=co;S.skills.push(id);if(s.e.co)S.corrupt+=s.e.co;uQP("skills",1);uQP("skills_s",1);if(s.p==="void")uQP("void_sk",1);if(S.corrupt>=5)uQP("corruption",S.corrupt);showToast(`Mastered: ${s.n}`);saveGame();if(curView==="dao")rDao(document.getElementById("mc"));updateUI();}
+function useAS(id){const as=ACTIVE_SKILLS.find(s=>s.id===id);if(!isSkUl(as)||(S.scd[id]||0)>0)return;let cd=as.cd;if(hasSk("SV2"))cd/=2;S.scd[id]=cd;if(as.ef==="qps_double")S.buffs.qps_double=Date.now()+as.dur*1000;else if(as.ef==="qi_burst"){S.qi+=getQPS()*60;S.tqi+=getQPS()*60;}else if(as.ef==="tap_5x"){S.qi*=.95;S.buffs.tap_5x=Date.now()+as.dur*1000;}else if(as.ef==="time_fold"){S.qi+=getQPS()*600;S.tqi+=getQPS()*600;}else if(as.ef==="insight_gain")S.ins++;else if(as.ef==="golden_touch")S.gtTaps=10;else if(as.ef==="surge")S.buffs.surge=Date.now()+as.dur*1000;else if(as.ef==="void_step"){S.qi+=100000;S.tqi+=100000;S.corrupt++;}showToast(`${as.n}!`);if(curView==="core")rCore(document.getElementById("mc"));updateUI();}
+function buyWA(id){const w=WAR_ARTS.find(x=>x.id===id);if(S.warArts.includes(id)||S.se<w.c)return;S.se-=w.c;S.warArts.push(id);showToast(`Learned: ${w.n}`);saveGame();if(curView==="wararts")rWarArts(document.getElementById("mc"));updateUI();}
+function startWave(){if(S.waveOn)return;healCreatures();S.wMHP=Math.floor(50*Math.pow(1.5,S.wave));S.wHP=S.wMHP;S.waveOn=true;showToast(`Wave ${S.wave+1} started!`);if(curView==="defense")rDefense(document.getElementById("mc"));}
+function openJS(){if(S.js<1)return;S.js--;const r=Math.random();let m="";if(r<.7){const q=500+Math.floor(Math.random()*1500);S.qi+=q;S.tqi+=q;m=`+${q} Qi`;}else if(r<.9){const q=5000+Math.floor(Math.random()*10000);S.qi+=q;S.tqi+=q;m=`+${fN(q)} Qi`;}else if(r<.98){S.ins++;m="+1 Insight";}else{S.st++;m="+1 ST";}showToast(m);if(curView==="mystic")rMystic(document.getElementById("mc"));updateUI();}
+function mergeJ(){if(S.js<5)return;S.js-=5;S.gv++;S.tmerges++;uQP("merges",1);showToast("5 Jade = 1 Voucher");if(curView==="mystic")rMystic(document.getElementById("mc"));}
+function mergeG(){if(S.gv<5)return;S.gv-=5;S.ggv++;showToast("5 Vouchers = 1 Golden");if(curView==="mystic")rMystic(document.getElementById("mc"));}
+function splitG(){if(S.ggv<1)return;S.ggv--;S.gv+=5;showToast("Split!");if(curView==="mystic")rMystic(document.getElementById("mc"));}
+function rollV(){if(S.gv<1)return;S.gv--;S.trolls++;uQP("rolls",1);uQP("rolls_s",1);const lb=hasSk("C3")?.1:0,al=hasArt("lucky_charm")?.05:0,rm=hasSk("H5")?2:(hasSk("C4")?1.5:1);let r=Math.random()-lb-al,m="";if(r<.02*rm){const q=5e6*rm;S.qi+=q;S.tqi+=q;S.ins+=50;uRS();m=`MYTHIC! +${fN(q)} Qi +50 Ins +Skill!`;}else if(r<.08){const q=1e6*rm;S.qi+=q;S.tqi+=q;S.ins+=15;m=`LEGENDARY! +${fN(q)} Qi +15 Ins`;}else if(r<.2){const q=2e5*rm;S.qi+=q;S.tqi+=q;S.ins+=5;m=`EPIC! +${fN(q)} Qi +5 Ins`;}else if(r<.5){const q=5e4*rm;S.qi+=q;S.tqi+=q;m=`RARE! +${fN(q)} Qi`;}else{const q=1e4*rm;S.qi+=q;S.tqi+=q;m=`Common: +${fN(q)} Qi`;}showToast(m);if(curView==="mystic")rMystic(document.getElementById("mc"));updateUI();}
+function rollGV(){if(S.ggv<1)return;S.ggv--;S.trolls++;const rm=hasSk("H5")?2:(hasSk("C4")?1.5:1);let r=Math.random(),m="";if(r<.1){const q=5e7*rm;S.qi+=q;S.tqi+=q;S.ins+=200;S.gm+=.2;m=`DIVINE! +${fN(q)} Qi +200 Ins +20% Global!`;}else if(r<.25){const q=1e7*rm;S.qi+=q;S.tqi+=q;S.ins+=75;m=`MYTHIC! +${fN(q)} Qi +75 Ins`;}else if(r<.6){const q=2e6*rm;S.qi+=q;S.tqi+=q;S.ins+=30;m=`LEGENDARY! +${fN(q)} Qi +30 Ins`;}else{const q=5e5*rm;S.qi+=q;S.tqi+=q;S.ins+=10;m=`EPIC! +${fN(q)} Qi +10 Ins`;}showToast(m);if(curView==="mystic")rMystic(document.getElementById("mc"));updateUI();}
+function uRS(){const av=SKILLS.filter(s=>!S.skills.includes(s.id)&&!s.id.startsWith("SV")&&chkReq(s));if(av.length){const p=av[Math.floor(Math.random()*av.length)];S.skills.push(p.id);showToast(`Free: ${p.n}!`);}}
+function evoSp(id){const sp=SPECIES.find(s=>s.id===id);if(S.species===id)return;if(S.usp.includes(id)){if(S.qi>=1000){S.qi-=1000;S.species=id;showToast(`Switched: ${sp.n}!`);}}else{if(sp.c.secret&&!S.sovUnlocked)return;if(!chkSpC(sp))return;if(sp.c.qi)S.qi-=sp.c.qi;if(sp.c.ins)S.ins-=sp.c.ins;S.usp.push(id);S.species=id;S.tevos++;uQP("evos",1);uQP("sp_count",S.usp.length);showToast(`Evolved: ${sp.n}!`);}saveGame();if(curView==="evolution")rEvolution(document.getElementById("mc"));if(curView==="core")rCore(document.getElementById("mc"));updateUI();}
+function chkSpC(sp){if(sp.c.secret)return S.sovUnlocked;if(sp.c.re)return S.reincs>=sp.c.re;if(sp.c.qi&&S.qi<sp.c.qi)return false;if(sp.c.ins&&S.ins<sp.c.ins)return false;return true;}
+function fSpC(c){let p=[];if(c.qi)p.push(`${fN(c.qi)} Qi`);if(c.ins)p.push(`${c.ins} Ins`);if(c.re)p.push(`${c.re} Reincs`);return p.join(" + ")||"Free";}
+function buySI(id){const item=SHOP_ITEMS.find(i=>i.id===id);if(S.st<item.c)return;if(item.t==="eq"&&S.eq===id)return;if(item.t==="art"&&S.arts.includes(id))return;S.st-=item.c;if(item.t==="con"){if(item.ef==="qps_pill")S.buffs.qps_pill=Date.now()+300000;else if(item.ef==="insight_pill")S.ins++;else if(item.ef==="tap_perm")S.arts.push("body_pill_perm");else if(item.ef==="cleanse")S.corrupt=0;else if(item.ef==="rebirth_keep")S.rbKeep=true;showToast(`Used ${item.n}!`);}else if(item.t==="eq"){S.eq=id;if(item.e?.co)S.corrupt+=item.e.co;showToast(`Equipped ${item.n}!`);}else if(item.t==="art"){S.arts.push(id);showToast(`Acquired ${item.n}!`);}saveGame();if(curView==="shop")rShop(document.getElementById("mc"));updateUI();}
+function gQP(q){switch(q.t){case"clicks":return S.clicks;case"totalQi":return S.tqi;case"upgrades":return Object.values(S.ups).reduce((a,b)=>a+b,0);case"realm":return S.currentRealm||0;case"skills":return S.skills.length;case"slips":return S.slipsE;case"rolls":return S.trolls;case"merges":return S.tmerges;case"evos":return S.tevos;case"playtime":return S.playtime;case"reincs":return S.reincs;case"void_sk":return S.skills.filter(s=>s.startsWith("V")).length;case"clicks_s":return S.sClicks;case"qi_s":return S.sQi;case"skills_s":return S.sSkills;case"rolls_s":return S.sRolls;case"sp_count":return S.usp.length;case"corruption":return S.corrupt;case"waves":return S.wave;case"rooms":return Object.keys(S.dGrid).length;default:return 0;}}
+function uQP(t,a){QUESTS.filter(q=>q.t===t&&!S.qc[q.id]).forEach(q=>{if(!S.qp[q.id])S.qp[q.id]=0;S.qp[q.id]+=a;});}
+function claimQ(id,e){e.stopPropagation();const q=QUESTS.find(x=>x.id===id);if(gQP(q)<q.tg)return;if(S.qc[q.id]&&q.ot)return;if(q.rp&&S.qcd[q.id]&&S.qcd[q.id]>Date.now())return;if(q.rw.st)S.st+=q.rw.st;if(q.rw.sk)S.askills.push(q.rw.sk);if(q.rw.title)S.title=q.rw.title;S.qc[q.id]=true;if(q.rp){S.qcd[q.id]=Date.now()+q.cd*1000;S.qc[q.id]=false;if(q.t==="clicks_s")S.sClicks=0;if(q.t==="qi_s")S.sQi=0;if(q.t==="skills_s")S.sSkills=0;if(q.t==="rolls_s")S.sRolls=0;}showToast(`${q.n}! +${q.rw.st||0} ST`);saveGame();if(curView==="quests")rQuests(document.getElementById("mc"));updateUI();}
+function fRW(r){let p=[];if(r.st)p.push(`${r.st} ST`);if(r.sk)p.push("Skill");if(r.title)p.push("Title");return p.join(", ");}
+function chkRealm(){let nr=0;for(let i=REALMS.length-1;i>=0;i--){if(S.tqi>=REALMS[i].t){nr=i;break;}}if(nr>(S.currentRealm||0)){S.currentRealm=nr;const r=REALMS[nr];let ig=Math.floor(r.i*getIM());if(hasSk("SV4"))ig+=10;S.ins+=ig;uQP("realm",nr);showToast(`${r.n}! +${ig} Insight`);}}
+function getReincReq(){return 1e9*Math.pow(10,S.reincs);}
+function openReincModal(){const req=getReincReq();if(S.tqi<req){showToast(`Requires ${fN(req)} Total Qi to Reincarnate`);return;}showModal("REINCARNATE?",`Sever cultivation. Lose Qi, Upgrades, Skills.<br>Keep Insight & Stones. Gain <strong>+20% Global Mult</strong>.<br><br><strong>Requirement Met:</strong> ${fN(S.tqi)} / ${fN(req)} Total Qi`,[{t:"Remain",c:"bs",a:"closeModal()"},{t:"Reincarnate",c:"bp",a:"doReinc()"}]);}
+function doReinc(){S.reincs++;S.gm+=.2;S.qi=0;S.tqi=0;S.ups={};if(S.rbKeep){S.rbKeep=false;}else if(hasArt("soul_lantern")){S.skills=S.skills.sort(()=>.5-Math.random()).slice(0,3);}else{S.skills=[];}S.currentRealm=0;S.corrupt=0;S.species="human";S.cts=0;S.gtTaps=0;S.buffs={};S.eq=null;uQP("reincs",1);closeModal();showToast(`Reborn! x${S.gm.toFixed(1)}`);saveGame();switchView("core");updateUI();}
+function verifyAdmin(){const inp=document.getElementById("admin-input");const code=inp.value.trim();if(verifyAdminSeal(code)){document.getElementById("nav-admin").style.display="flex";showToast("VERIFIED — Sovereign Unlocked!");inp.value="";if(curView==="ascend")rAscend(document.getElementById("mc"));}else{showToast("Invalid code.");}}
+function adminGrant(cur){const amt=parseInt(document.getElementById("grant-amt").value)||0;if(amt<=0)return;if(cur==="qi"){S.qi+=amt;S.tqi+=amt;}else if(cur==="ins")S.ins+=amt;else if(cur==="st")S.st+=amt;else if(cur==="dp")S.dp+=amt;else if(cur==="se")S.se+=amt;else if(cur==="mana")S.mana=Math.min(S.manaCap,S.mana+amt);showToast(`Granted ${amt} ${cur.toUpperCase()}`);updateUI();}
+function adminUnlockAll(){SKILLS.forEach(s=>{if(!S.skills.includes(s.id))S.skills.push(s.id);});WAR_ARTS.forEach(w=>{if(!S.warArts.includes(w.id))S.warArts.push(w.id);});showToast("All skills unlocked!");saveGame();}
+function adminUnlockSpecies(){SPECIES.forEach(sp=>{if(!S.usp.includes(sp.id))S.usp.push(sp.id);});showToast("All species unlocked!");saveGame();}
+function adminToggleSov(){S.sovUnlocked=!S.sovUnlocked;showToast(S.sovUnlocked?"Sovereign ON":"Sovereign OFF");saveGame();}
+function adminExport(){const data=exportSaveWard();showModal("EXPORT SAVE",`<div style="font-size:.7rem;color:var(--dim);margin-bottom:8px;font-family:var(--mono)">Username: ${S.username} | Code: ${S.saveCode}</div><textarea style="width:100%;height:80px;background:#000;border:2px solid var(--border);color:var(--text);padding:8px;font-size:.6rem;resize:none;font-family:var(--mono)" readonly>${data}</textarea>`,[{t:"Close",c:"bs",a:"closeModal()"}]);}
+function adminImportPrompt(){showModal("IMPORT SAVE","Paste save data below:",[{t:"Cancel",c:"bs",a:"closeModal()"},{t:"Import",c:"bp",a:"doImport()"}],true);document.getElementById("moi").placeholder="Paste warded save code...";}
+function doImport(){const data=document.getElementById("moi").value;if(importSaveWard(data)){saveGame();closeModal();showToast("Save imported!");switchView("core");updateUI();}else{showToast("Invalid or corrupted save code");}}
+function adminReset(){showModal("RESET ALL?","This cannot be undone. All progress will be lost.",[{t:"Cancel",c:"bs",a:"closeModal()"},{t:"RESET",c:"br",a:"doReset()"}]);}
+function doReset(){clearInterval(window._saveInterval);localStorage.removeItem("nexus-dao-matrix-save");location.reload();}
+function adminChangeName(){const name=document.getElementById("new-username").value.trim();if(name.length<3||name.length>16){showToast("3-16 chars");return;}S.username=name;saveGame();showToast(`Username updated: ${name}`);updateUI();rAdmin(document.getElementById("mc"));}
+function openTutorial(){tutStep=0;renderTutStep();document.getElementById("tut-ov").classList.add("active");}
+function closeTutorial(){document.getElementById("tut-ov").classList.remove("active");}
+function nextTutorial(){tutStep++;if(tutStep>=TUT_STEPS.length){closeTutorial();showToast("Tutorial Complete!");return;}renderTutStep();}
+function renderTutStep(){const s=TUT_STEPS[tutStep];document.getElementById("tut-step").textContent=s.s;document.getElementById("tut-title").textContent=s.t;document.getElementById("tut-desc").textContent=s.d;document.getElementById("tut-prog").textContent=`Step ${tutStep+1}/${TUT_STEPS.length}`;}
+function updateUI(){document.getElementById("rn").textContent=REALMS[S.currentRealm||0].n;document.getElementById("bi").textContent=`IN ${S.ins}`;document.getElementById("bs").textContent=`ST ${S.st}`;document.getElementById("bse").textContent=`SE ${Math.floor(S.se)}`;document.getElementById("bm").textContent=`MN ${Math.floor(S.mana)}/${S.manaCap}`;document.getElementById("qm").textContent=fN(S.qi);document.getElementById("qd").textContent=`${fN(getQPS())} Qi/s`;document.getElementById("qt").textContent=`${fN(getTP())} Qi/tap`;document.getElementById("un-display").textContent=`CULTIVATOR: ${S.username} ${S.isAdmin?"[SOVEREIGN]":""}`;}
+function spawnFloat(e,amt){const el=document.createElement("div");el.className="fq";el.textContent=`+${fN(amt)}`;const r=e.target.getBoundingClientRect();el.style.left=`${(e.clientX||r.left+r.width/2)-r.left}px`;el.style.top=`${(e.clientY||r.top+r.height/2)-r.top}px`;e.target.parentElement.appendChild(el);setTimeout(()=>el.remove(),800);}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);}
+function showModal(title,desc,btns,showInput=false){document.getElementById("mot").innerHTML=title;document.getElementById("mod").innerHTML=desc;document.getElementById("moi").style.display=showInput?"block":"none";document.getElementById("moi").value="";document.getElementById("mob").innerHTML=btns.map(b=>`<button class="btn ${b.c}" onclick="${b.a}">${b.t}</button>`).join("");document.getElementById("mo").classList.add("active");}
+function closeModal(){document.getElementById("mo").classList.remove("active");}
+function fN(n){const s=["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];if(n<1000)return Math.floor(n).toLocaleString();let t=Math.floor(Math.log10(n)/3);if(t>=s.length)return n.toExponential(2);return(n/Math.pow(10,t*3)).toFixed(1)+s[t];}
+function fT(s){if(s<60)return`${Math.floor(s)}s`;if(s<3600)return`${Math.floor(s/60)}m`;return`${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;}
+function saveGame(){try{localStorage.setItem("nexus-dao-matrix-save",exportSaveWard());}catch(e){}}
+function loadGame(){try{const s=localStorage.getItem("nexus-dao-matrix-save");if(s){if(!importSaveWard(s)){try{const p=JSON.parse(s);S=Object.assign({},S,p);}catch(e){}}}}catch(e){}if(!S.ups)S.ups={};if(!S.skills)S.skills=[];if(!S.usp)S.usp=["human"];if(!S.qp)S.qp={};if(!S.qc)S.qc={};if(!S.qcd)S.qcd={};if(!S.scd)S.scd={};if(!S.buffs)S.buffs={};if(!S.arts)S.arts=[];if(!S.askills)S.askills=[];if(!S.defs)S.defs={};if(!S.warArts)S.warArts=[];if(!S.csCd)S.csCd={};if(!S.dGrid)S.dGrid={};if(!S.dSize)S.dSize=3;if(!S.creatures)S.creatures={};if(!S.creatHP)S.creatHP={};if(S.currentRealm===undefined)S.currentRealm=0;}
+init();
+</script>
+</body>
+</html>
