@@ -55,11 +55,20 @@ h2{color:var(--brown)}
 .books{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:18px;margin-top:20px}
 .book{position:relative;display:flex;gap:13px;padding:13px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 20px var(--shade);cursor:pointer;transition:.15s}
 .book:hover{transform:translateY(-3px);box-shadow:0 13px 28px var(--shade)}
-.spine{display:grid;place-items:center;flex:0 0 70px;height:108px;border-radius:4px;background:linear-gradient(135deg,#6f8372,#a7b49a);box-shadow:inset 7px 0 rgba(0,0,0,.14);color:#fff;font-size:1.7rem;font-family:var(--mono)}
-.book[data-kind=epub] .spine{background:linear-gradient(135deg,#9b6047,#d6a178)}
-.book[data-kind=text] .spine{background:linear-gradient(135deg,#7a8b6e,#a7b49a)}
-.book[data-kind=audio] .spine{background:linear-gradient(135deg,#a66843,#d9a36b)}
-.book[data-kind=video] .spine{background:linear-gradient(135deg,#557684,#a3c0c4)}
+.spine{display:grid;place-items:center;flex:0 0 70px;height:108px;border-radius:4px;box-shadow:inset 7px 0 rgba(0,0,0,.14);color:#fff;font-size:1.7rem;font-family:var(--mono)}
+
+/* ===== 10 spine variants ===== */
+.book[data-variant="0"] .spine{background:linear-gradient(135deg,#9b6047,#d6a178)}
+.book[data-variant="1"] .spine{background:linear-gradient(135deg,#7a8b6e,#a7b49a)}
+.book[data-variant="2"] .spine{background:linear-gradient(135deg,#a66843,#d9a36b)}
+.book[data-variant="3"] .spine{background:linear-gradient(135deg,#557684,#a3c0c4)}
+.book[data-variant="4"] .spine{background:linear-gradient(135deg,#8a5a6b,#d3a0b0)}
+.book[data-variant="5"] .spine{background:linear-gradient(135deg,#6b5a8a,#b0a0d3)}
+.book[data-variant="6"] .spine{background:linear-gradient(135deg,#4f6d5a,#8fb89a)}
+.book[data-variant="7"] .spine{background:linear-gradient(135deg,#8a6f4f,#c9b08a)}
+.book[data-variant="8"] .spine{background:linear-gradient(135deg,#5a6d7a,#9ab0c0)}
+.book[data-variant="9"] .spine{background:linear-gradient(135deg,#7a4f4f,#c08a8a)}
+
 .book h3{margin:6px 20px 7px 0;font-size:1.05rem;overflow-wrap:anywhere}
 .meta{margin:0;color:#9a8578;font-size:.82rem;font-family:var(--mono)}
 .delete{position:absolute;right:7px;top:6px;border:0;background:transparent;color:#b8a898;cursor:pointer;font-size:1.25rem}
