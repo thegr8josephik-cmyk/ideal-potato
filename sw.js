@@ -1,17 +1,9 @@
-const CACHE_NAME = "cozy-reader-v2";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./manifest.json",
-  "./clicker.html",
-  "./rpg.html"
-];
+const CACHE_NAME = "cozy-reader-v4";
+const ASSETS = ["./","./index.html","./styles.css","./app.js","./manifest.json","./clicker.html","./rpg.html"];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => Promise.allSettled(ASSETS.map(url => cache.add(url))))
   );
   self.skipWaiting();
 });
