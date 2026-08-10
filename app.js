@@ -11,6 +11,8 @@ function all(){return new Promise((resolve,reject)=>{const req=db.transaction(ST
 function change(mode,action){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,mode);action(tx.objectStore(STORE));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
 
 function ext(name){return(name.split(".").pop()||"").toLowerCase()}
+function stripExt(name){return name.replace(/\.[^.]+$/,"")}
+function hashName(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h}
 function kind(file){const e=ext(file.name);if(e==="epub")return"epub";if(["txt","text","md","markdown"].includes(e))return"text";if(file.type.startsWith("audio/")||["mp3","m4a","wav","ogg","flac","opus"].includes(e))return"audio";if(file.type.startsWith("video/")||["mp4","m4v","webm","mov","ogv"].includes(e))return"video";return""}
 function label(type){return({epub:"EPUB BOOK",text:"TEXT BOOK",audio:"AUDIO",video:"VIDEO"})[type]||"FILE"}
 function glyph(type){return({epub:"❦",text:"¶",audio:"♫",video:"▶"})[type]||"□"}
@@ -26,9 +28,10 @@ function renderShelf(){
   for(const item of shown){
     const card=$("book").content.firstElementChild.cloneNode(true);
     card.dataset.kind=item.kind;
+    card.dataset.variant=String(hashName(item.name)%10);
     card.querySelector(".spine").textContent=glyph(item.kind);
     card.querySelector(".kind").textContent=label(item.kind);
-    card.querySelector("h3").textContent=item.name;
+    card.querySelector("h3").textContent=stripExt(item.name);
     card.querySelector(".meta").textContent=bytes(item.size);
     card.onclick=()=>openItem(item);
     card.querySelector(".delete").onclick=async event=>{event.stopPropagation();if(confirm(`Remove “${item.name}” from this device?`)){await change("readwrite",store=>store.delete(item.id));await refresh();toast("Removed from the shelf.")}};
@@ -67,6 +70,7 @@ function applyAppearance(){
 
 function applySpreadLabel(){
   const b=$("spread");
+  if(!b)return;
   b.textContent=spreadMode==="double"?"❐":"❙";
   b.title=spreadMode==="double"?"Double page (tap for single)":"Single page (tap for double)";
 }
@@ -120,7 +124,7 @@ function openText(item){
 async function openEpub(item,startCfi){
   try{
     book=ePub(item.data.slice(0));
-    rendition=book.renderTo("epubStage",{width:"100%",height:"100%",flow:"paginated",spread:spreadMode==="double"?"always":"none",allowScriptedContent:false});
+    rendition=book.renderTo("epubStage",{width:"100%",height:"100%",flow:"paginated",spread:spreadMode==="double"?"always":"none",allowScriptedContent:true});
     $("epubStage").hidden=false;
     rendition.on("relocated",location=>{
       lastLoc=location;
@@ -152,7 +156,7 @@ function renderToc(entries){
 function openItem(item){
   if(item.kind==="audio"||item.kind==="video"){openPlayer(item);return}
   active=item;
-  $("title").textContent=item.name;
+  $("title").textContent=stripExt(item.name);
   $("library").hidden=true;
   $("reader").hidden=false;
   $("toc").hidden=true;
@@ -174,7 +178,7 @@ function openPlayer(item){
   mediaUrl=URL.createObjectURL(new Blob([item.data],{type:item.type||(item.kind==="audio"?"audio/mpeg":"video/mp4")}));
   media.src=mediaUrl;
   media.hidden=false;
-  $("mediaTitle").textContent=item.name;
+  $("mediaTitle").textContent=stripExt(item.name);
   $("player").hidden=false;
   media.play().catch(()=>{});
 }
@@ -195,7 +199,8 @@ $("next").onclick=goNext;
 $("chapters").onclick=()=>$("toc").hidden=!$("toc").hidden;
 $("closeToc").onclick=()=>$("toc").hidden=true;
 $("closePlayer").onclick=closePlayer;
-$("spread").onclick=async()=>{
+const spreadBtn=$("spread");
+if(spreadBtn)spreadBtn.onclick=async()=>{
   spreadMode=spreadMode==="single"?"double":"single";
   localStorage.setItem("cozy-spread",spreadMode);
   applySpreadLabel();
